@@ -5,7 +5,7 @@
 
 #define TCP_KEEPALIVE_TIME		(60 * 1000)
 /* Listener Class */
-class ListenerImpl : public CTcpPullServerListener
+class CListenerImpl : public CTcpPullServerListener
 {
 
 public:
@@ -47,11 +47,9 @@ int main(int argc, char* const argv[])
 
 	/* wait for exit */
 	// ... ... 
-	while(1) {
-		s_pserver->GetAllConnectionIDs()
-		s_pserver->Fetch();
-		sleep(3);
-	}
+	//
+	pause();
+	
 	std::cout<< "ending...\n";
 
 	// 6. (optional) Stop component object
