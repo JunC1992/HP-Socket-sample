@@ -120,12 +120,17 @@ EnHandleResult CListenerImpl::OnReceive(ITcpServer* pSender, CONNID dwConnID, in
 		EnFetchResult result = pServer->Fetch(dwConnID, buf, required);
 		if(result == FR_OK) {
 			vec.insert(vec.end(), buf, buf+required);
+			remain -= required;
+		} else if (result == FR_DATA_NOT_FOUND) {
+			//TODO
+			//handle err
+			return HR_ERROR;
 		}
-		remain -= required;
 	}
 	
 	std::string res(vec.begin(), vec.end());
 	std::cout<< res << std::endl;
+	return HR_OK;
 }
 
 int main(int argc, char* const argv[])
