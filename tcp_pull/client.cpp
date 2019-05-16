@@ -1,5 +1,7 @@
 #include <hpsocket/HPSocket.h>
 #include <hpsocket/SocketInterface.h>
+#include <hpsocket/HPTypeDef.h>
+#include <hpsocket/common/GlobalDef.h>
 
 #include <stdlib.h>
 #include <unistd.h>
@@ -50,16 +52,9 @@ int main(int argc, char* const argv[])
 		exit(1);
 	
 	//s_pclient->Send("hello", 5);
-	if (!s_pclient->Send("hello", 5)) {
-		std::cout<< "send err..."; 
-		exit(-1);
-	}
 	/* wait for exit */
-	// ... ... 
-	while(1) {
-		
-		sleep(3);
-	}
+	pause();
+
 	std::cout<< "ending...\n";
 
 	// 6. (optional) Stop component object
