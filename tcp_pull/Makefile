@@ -10,7 +10,7 @@ all:
 	$(CC) client.cpp $(LIBS) -o $(CLI)
 	$(CC) sock_cli.c -o $(CLI4C)
 	
-$(SERV): server.cpp
+$(SERV): serv.cpp
 	$(CC) serv.cpp $(LIBS) -o $(SERV)
 
 $(CLI): client.cpp
