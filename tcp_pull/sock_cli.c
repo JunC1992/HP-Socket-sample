@@ -36,12 +36,13 @@ int main(int argc,char **argv)
 
 	printf("send message to server\n");
 
-	fgets(sendline,1024,stdin);
+	while(fgets(sendline,1024,stdin) != NULL){
 
-	if((send(socketfd,sendline,strlen(sendline),0)) < 0)
-	{
-		printf("send mes error: %s errno : %d",strerror(errno),errno);
-		exit(0);
+		if((send(socketfd,sendline,strlen(sendline),0)) < 0)
+		{
+			printf("send mes error: %s errno : %d",strerror(errno),errno);
+			exit(0);
+		}
 	}
 
 	close(socketfd);
