@@ -8,15 +8,12 @@
  *}
  */
 
+CTcpServerEngine g_listener;
+CTcpPullServerPtr g_pserver(&g_listener);
+
 // HP-Socket tcp daemon start
-bool CTcpServerDeamon::Run(){
-         // 1. Create listener object
-         CListenerImpl s_listener;
-         // 2. Create component object (and binding with listener object)
-         CTcpPullServerPtr s_pserver(&s_listener);
- 
-         // 3. Start component object
-         if(!s_pserver->Start(m_ip, m_port)) {
+bool CTcpServerDeamon::Start(){
+         if(!g_pserver->Start(m_ip, m_port)) {
 		 //TODO
 		 //log error msg
 		 return false;
