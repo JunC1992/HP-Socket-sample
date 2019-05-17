@@ -17,7 +17,7 @@ $(CLI): client.cpp
 	$(CC) client.cpp $(LIBS) -o $(CLI)
 
 $(CLI4C): sock_cli.c
-	$(CC) sock_cli.c -o $(CLI4C)
+	$(CC) sock_cli.cpp -o $(CLI4C)
 
 
 clean:
