@@ -4,7 +4,7 @@
 #include <unistd.h>
 #include <iostream>
 
-#include "CListenerImpl.h"
+#include "TcpServerEngine.h"
 
 /* Listener Class */
 class CTcpServerDeamon {
@@ -15,8 +15,13 @@ public:
 
 	~CTcpServerDeamon()=default;
 public:
+	// init tcp daemon
+	bool Init(int threads);
 	// start tcp server daemon
-	bool Run();
+	bool Start();
+
+	// register handler
+	bool SetHandleFactory();
 
 	//TODO
 	// stop tcp server daemon
