@@ -1,6 +1,10 @@
 #include <hpsocket/HPSocket.h> 
 #include <hpsocket/common/GlobalDef.h> 
 
+#include <string>
+#include <cstdlib>
+#include <unistd.h>
+
 class CHttpServerListenerImpl : public CHttpServerListener
 {
 private:
@@ -28,7 +32,7 @@ private:
 	virtual EnHandleResult OnWSMessageComplete(IHttpServer* pSender, CONNID dwConnID);
 
 private:
-	CStringA GetHeaderSummary(IHttpServer* pSender, CONNID dwConnID, LPCSTR lpszSep = "  ", int iSepCount = 0, BOOL bWithContentLength = TRUE);
+	std::string GetHeaderSummary(IHttpServer* pSender, CONNID dwConnID, LPCSTR lpszSep = "  ", int iSepCount = 0, BOOL bWithContentLength = TRUE);
 
 public:
 	CHttpServerListenerImpl(LPCTSTR lpszName)
@@ -37,5 +41,5 @@ public:
 	}
 
 public:
-	CString m_strName;
+	std::string m_strName;
 };
