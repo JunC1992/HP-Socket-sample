@@ -4,6 +4,7 @@
  */
 #include "CHttpServerListenerImpl.h"
 #include <iostream>
+#include <cstring>
 
 // ------------------------------------------------------------------------------------------------------------- //
 
@@ -37,7 +38,6 @@ EnHandleResult CHttpServerListenerImpl::OnAccept(ITcpServer* pSender, CONNID dwC
 
 EnHandleResult CHttpServerListenerImpl::OnHandShake(ITcpServer* pSender, CONNID dwConnID)
 {
-	//::PostOnHandShake(dwConnID, m_strName);
 	return HR_OK;
 }
 
@@ -52,6 +52,7 @@ EnHandleResult CHttpServerListenerImpl::OnReceive(ITcpServer* pSender, CONNID dw
 	 *else
 	 *        return HR_ERROR;
 	 */
+	 return HR_OK;
 }
 
 EnHandleResult CHttpServerListenerImpl::OnSend(ITcpServer* pSender, CONNID dwConnID, const BYTE* pData, int iLength)
@@ -123,7 +124,8 @@ EnHttpParseResult CHttpServerListenerImpl::OnBody(IHttpServer* pSender, CONNID d
 {
 	//::PostOnBody(dwConnID, pData, iLength, m_strName);
 	std::cout<< "on body" << std::endl;
-	std::cout<< pData << std::endl;
+	//std::cout<< pData << std::endl;
+	pSender->SetConnectionExtra(dwConnID, PVOID(pData));
 
 	return HPR_OK;
 }
@@ -143,15 +145,27 @@ EnHttpParseResult CHttpServerListenerImpl::OnChunkComplete(IHttpServer* pSender,
 EnHttpParseResult CHttpServerListenerImpl::OnMessageComplete(IHttpServer* pSender, CONNID dwConnID)
 {
 	std::cout<< "on message complete" << std::endl;
+	std::cout<< dwConnID << std::endl;
+
+	//http extra body;
+	LPVOID pExBody = nullptr;
+	if(!pSender->GetConnectionExtra(dwConnID, (PVOID*)&pExBody)) {
+		std::cout << "get connection extra error" << std::endl;
+ 		return HPR_ERROR;
+	}
+
+	std::cout<< (char* )pExBody << std::endl;
+
 	THeader header[] = {{"Content-type", "text/plain"}};
         int iHeaderCount = sizeof(header) / sizeof(THeader);
+	//auto pData = "hello world";
+	auto lenBody = strlen((char*) (pExBody));
 
-	pSender->SendResponse(dwConnID, HSC_OK, 
-			"OK",
+	pSender->SendResponse(dwConnID, 
+			HSC_OK, "OK",
 			header, iHeaderCount,
-			(const BYTE*)(LPCSTR) "hello_world",
-			11
-			//iBodyLength
+			(const BYTE*)(LPCSTR) pExBody,
+			lenBody
 			);		                              
         if(!pSender->IsKeepAlive(dwConnID))
 		pSender->Release(dwConnID);
@@ -416,10 +430,6 @@ std::string CHttpServerListenerImpl::GetHeaderSummary(IHttpServer* pSender, CONN
 
 // ------------------------------------------------------------------------------------------------------------- //
 
-CHttpServerListenerImpl s_listener_1("http");
-//CHttpServerListenerImpl s_listener_2(HTTPS_NAME);
-CHttpServerPtr s_http_server(&s_listener_1);
-//CHttpsServer s_https_server(&s_listener_2);
 
 // ------------------------------------------------------------------------------------------------------------- //
 
@@ -444,43 +454,18 @@ int CALLBACK SIN_ServerNameCallback(LPCTSTR lpszServerName)
  *        return SPECIAL_SERVER_INDEX;
  */
 }
-
-int main(int argc, char* const argv[])
-{
 /*
- *        CTermAttrInitializer term_attr;
- *        CAppSignalHandler s_signal_handler({SIGTTOU, SIGINT});
  *
- *        g_app_arg.ParseArgs(argc, argv);
+ *CHttpServerListenerImpl s_listener_1("http");
+ *CHttpServerListenerImpl s_listener_2(HTTPS_NAME);
+ *CHttpServerPtr s_http_server(&s_listener_1);
+ *CHttpsServer s_https_server(&s_listener_2);
+ *int main(int argc, char* const argv[])
+ *{
  *
- *        if(s_https_server.SetupSSLContext(SSL_VM_NONE, g_s_lpszPemCertFile, g_s_lpszPemKeyFile, g_s_lpszKeyPasswod, g_s_lpszCAPemCertFileOrPath, SIN_ServerNameCallback))
- *                SPECIAL_SERVER_INDEX = s_https_server.AddSSLContext(SSL_VM_NONE, g_s_lpszPemCertFile2, g_s_lpszPemKeyFile2, g_s_lpszKeyPasswod2, g_s_lpszCAPemCertFileOrPath2);
- *        else
- *        {
- *                ::LogServerStartFail(::GetLastError(), _T("initialize SSL env fail"));
- *                return EXIT_CODE_CONFIG;
- *        }
+ *        s_http_server->Start("0.0.0.0", 5555);
+ *        pause();
  *
- *        s_http_server.SetKeepAliveTime(g_app_arg.keep_alive ? TCP_KEEPALIVE_TIME : 0);
- *        s_https_server.SetKeepAliveTime(g_app_arg.keep_alive ? TCP_KEEPALIVE_TIME : 0);
- *
- *        CCommandParser::CMD_FUNC fnCmds[CCommandParser::CT_MAX] = {0};
- *
- *        fnCmds[CCommandParser::CT_START]	= (CCommandParser::CMD_FUNC)OnCmdStart;
- *        fnCmds[CCommandParser::CT_STOP]		= (CCommandParser::CMD_FUNC)OnCmdStop;
- *        fnCmds[CCommandParser::CT_STATUS]	= (CCommandParser::CMD_FUNC)OnCmdStatus;
- *        fnCmds[CCommandParser::CT_SEND]		= (CCommandParser::CMD_FUNC)OnCmdSend;
- *        fnCmds[CCommandParser::CT_PAUSE]	= (CCommandParser::CMD_FUNC)OnCmdPause;
- *        fnCmds[CCommandParser::CT_KICK]		= (CCommandParser::CMD_FUNC)OnCmdKick;
- *        fnCmds[CCommandParser::CT_KICK_L]	= (CCommandParser::CMD_FUNC)OnCmdKickLong;
- *        fnCmds[CCommandParser::CT_KICK_S]	= (CCommandParser::CMD_FUNC)OnCmdKickSilence;
- *
- *        CHttpCommandParser s_cmd_parser(CCommandParser::AT_SERVER, fnCmds);
- *        s_cmd_parser.Run();
+ *        return 0;
+ *}
  */
-
-	s_http_server->Start("0.0.0.0", 5555);
-	pause();
-
-	return 0;
-}

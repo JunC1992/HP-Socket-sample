@@ -37,5 +37,5 @@ public:
 private:
 
 	// tcp stream remain data
-	std::string m_remain;
+	//std::string m_remain;
 };

@@ -11,7 +11,7 @@ class CTcpServerDeamon {
 
 public:
 	CTcpServerDeamon()=default;
-	CTcpServerDeamon(const char * ip, int port): m_ip(ip), m_port(port){};
+	CTcpServerDeamon(const char * ip, const int port): m_ip(ip), m_port(port){};
 
 	~CTcpServerDeamon()=default;
 public:
@@ -31,6 +31,6 @@ public:
 	// package parse
 private:
 	const char * m_ip;
-	int m_port;
+	const int m_port;
 };
 
