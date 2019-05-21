@@ -1,7 +1,8 @@
 #include "CHttpServerListenerImpl.h"
 
+// default serv_ip & serv_port
 #define DEFAULT_IP "127.0.0.1"
-#define DEFAULT_PORT 80
+#define DEFAULT_PORT 8080
 
 class CHttpServerDaemon{
 
@@ -11,10 +12,20 @@ public:
 	~CHttpServerDaemon()=default;
 
 public:
+	// http server daemon init
 	bool Init();
+	// http server daemon start
 	bool Start();
+	// http server daemon stop
 	bool Stop();
+	// http server daemon handle register
 	bool SetHandleFactory();
+
+private:
+	// http body paser
+	bool paser();
+	// http request handle
+	bool handle();
 
 private:
 	const char* m_ip;

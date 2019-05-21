@@ -153,12 +153,14 @@ EnHttpParseResult CHttpServerListenerImpl::OnMessageComplete(IHttpServer* pSende
 		std::cout << "get connection extra error" << std::endl;
  		return HPR_ERROR;
 	}
+	if (pExBody == nullptr) {
+		pExBody = (LPVOID)"HX_DEFAULT";
+	}
 
 	std::cout<< (char* )pExBody << std::endl;
 
 	THeader header[] = {{"Content-type", "text/plain"}};
         int iHeaderCount = sizeof(header) / sizeof(THeader);
-	//auto pData = "hello world";
 	auto lenBody = strlen((char*) (pExBody));
 
 	pSender->SendResponse(dwConnID, 
@@ -166,9 +168,14 @@ EnHttpParseResult CHttpServerListenerImpl::OnMessageComplete(IHttpServer* pSende
 			header, iHeaderCount,
 			(const BYTE*)(LPCSTR) pExBody,
 			lenBody
-			);		                              
-        if(!pSender->IsKeepAlive(dwConnID))
+			);
+        if(!pSender->IsKeepAlive(dwConnID)) {
 		pSender->Release(dwConnID);
+	} else {
+		//reset http extra body
+		const char* pData = "HX_DEFAULT";
+		pSender->SetConnectionExtra(dwConnID, PVOID(pData));
+	}
 	//::PostOnMessageComplete(dwConnID, m_strName);
 
 /*
