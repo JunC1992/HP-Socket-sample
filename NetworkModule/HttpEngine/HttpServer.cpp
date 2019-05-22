@@ -17,4 +17,4 @@ bool CHttpServerDaemon::Start(){
 
 bool CHttpServerDaemon::Stop(){return true;}
 
-bool CHttpServerDaemon::SetHandleFactory(){return true;}
+//bool CHttpServerDaemon::SetHandleFactory(){return true;}

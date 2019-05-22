@@ -1,4 +1,6 @@
-#include "CHttpServerListenerImpl.h"
+#pragma once
+
+#include "HttpServerEngine.h"
 
 // default serv_ip & serv_port
 #define DEFAULT_IP "127.0.0.1"
@@ -18,14 +20,11 @@ public:
 	bool Start();
 	// http server daemon stop
 	bool Stop();
+	//TODO
 	// http server daemon handle register
-	bool SetHandleFactory();
+	//bool SetHandleFactory();
 
 private:
-	// http body paser
-	bool paser();
-	// http request handle
-	bool handle();
 
 private:
 	const char* m_ip;
