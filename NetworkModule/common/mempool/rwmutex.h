@@ -22,4 +22,4 @@
   typedef scoped_lock writeLock;
 #endif
 
-#endif _RW_MUTEX_H_
+#endif 

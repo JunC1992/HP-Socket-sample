@@ -59,7 +59,8 @@ EnHandleResult CHttpServerListenerImpl::OnClose(ITcpServer* pSender, CONNID dwCo
  *
  */
 	std::cout << dwConnID << "on close" << std::endl;
-	m_bodyData.erase(dwConnID);
+	//m_bodyData.erase(dwConnID);
+	m_bodyMEMPool.destroy(mC_bodyData[dwConnID]);
 	return HR_OK;
 }
 
@@ -74,7 +75,9 @@ EnHttpParseResult CHttpServerListenerImpl::OnMessageBegin(IHttpServer* pSender, 
 {
 	std::cout<< "on message begin" << std::endl;
 	//std::cout<< m_strName << std::endl;
-	m_bodyData[dwConnID] = std::string();
+	//m_bodyData[dwConnID] = std::string();
+	if mC_bodyData.find();
+	mC_bodyData[dwConnID] = m_bodyMEMPool.allocate();
 	return HPR_OK;
 }
 
@@ -107,7 +110,10 @@ EnHttpParseResult CHttpServerListenerImpl::OnBody(IHttpServer* pSender, CONNID d
 	std::cout<< "on body" << std::endl;
 	//std::cout<< pData << std::endl;
 	//pSender->SetConnectionExtra(dwConnID, PVOID(pData));
-	m_bodyData[dwConnID] += (char*) pData;
+	//m_bodyData[dwConnID] += (char*) pData;
+	std::string tmp += (char*) pData;
+	memncpy(mC_bodyData[dwConnID], tmp.data(), tmp.length);
+	//m_bodyData[dwConnID] += (char*) pData;
 
 	return HPR_OK;
 }
@@ -130,7 +136,7 @@ EnHttpParseResult CHttpServerListenerImpl::OnMessageComplete(IHttpServer* pSende
  *        std::thread th(&CHttpServerListenerImpl::HttpHandle, this, pSender, dwConnID);
  *        th.detach();
  */
-	m_handlePool.AddTask([=]{
+	m_handleTHPool.AddTask([=]{
 		HttpHandle(pSender, dwConnID);
 	});
 	return HPR_OK;
@@ -336,5 +342,5 @@ bool CHttpServerListenerImpl::HttpHandleProcess(const std::string& sBody, std::s
 
 void CHttpServerListenerImpl::Init() {
 	// set http handle thread pool
-	m_handlePool.Start();
+	m_handleTHPool.Start();
 }

@@ -11,6 +11,7 @@
 //#include "../common/BufferPtr.h"
 #include "../HttpHandle/HttpHandle.h"
 #include "../common/queue/ThreadPool.hpp"
+#include "../common/mempool/MemoryPool.h"
 
 class CHttpServerListenerImpl : public CHttpServerListener
 {
@@ -56,8 +57,12 @@ public:
 	std::string m_strName;
 
 	// http handle thread pool
-	ThreadPool m_handlePool;
+	ThreadPool m_handleTHPool;
+
+	// http body memory pool, default capacity 4096
+	MemoryPool<char> m_bodyMEMPool;
 
 	// http body data
 	std::map<CONNID, std::string> m_bodyData; 
+	std::map<CONNID, char*> mC_bodyData; 
 };
