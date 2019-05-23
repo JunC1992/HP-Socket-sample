@@ -6,8 +6,7 @@
 
 #include <iostream>
 #include <string>
-#include <cstdlib>
-#include <unistd.h>
+#include <thread>
 
 //#include "../common/BufferPtr.h"
 #include "../HttpHandle/HttpHandle.h"
@@ -44,7 +43,7 @@ private:
 	// http request handle
 	//void HttpHandle(const std::string& content);
 	EnHttpParseResult HttpHandle (IHttpServer* pSender, CONNID dwConnID);
-	bool HttpHandle (const std::string& sBody, std::string& sResponse);
+	bool HttpHandleProcess (const std::string& sBody, std::string& sResponse);
 
 public:
 	CHttpServerListenerImpl(LPCTSTR lpszName)

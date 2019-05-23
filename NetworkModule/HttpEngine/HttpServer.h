@@ -20,11 +20,8 @@ public:
 	bool Start();
 	// http server daemon stop
 	bool Stop();
-	//TODO
-	// http server daemon handle register
-	//bool SetHandleFactory();
-
-private:
+	// http server daemon handle registed
+	bool SetHandleFactory();
 
 private:
 	const char* m_ip;

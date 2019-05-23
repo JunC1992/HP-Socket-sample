@@ -121,10 +121,13 @@ EnHttpParseResult CHttpServerListenerImpl::OnChunkComplete(IHttpServer* pSender,
 
 EnHttpParseResult CHttpServerListenerImpl::OnMessageComplete(IHttpServer* pSender, CONNID dwConnID)
 {
-	std::cout<< "on message complete" << std::endl;
-	std::cout<< dwConnID << std::endl;
+	std::cout<< "on message complete : " << dwConnID << std::endl;
 
-	return HttpHandle(pSender, dwConnID);
+	// TODO 
+	// thread
+	std::thread th(&CHttpServerListenerImpl::HttpHandle, this, pSender, dwConnID);
+	th.detach();
+	return HPR_OK;
 }
 
 EnHttpParseResult CHttpServerListenerImpl::OnUpgrade(IHttpServer* pSender, CONNID dwConnID, EnHttpUpgradeType enUpgradeType)
@@ -245,7 +248,7 @@ EnHttpParseResult CHttpServerListenerImpl::HttpHandle(IHttpServer* pSender, CONN
 	}
 
 	std::string strRes;
-	auto res = HttpHandle((char*) pExBody, strRes);
+	auto res = HttpHandleProcess((char*) pExBody, strRes);
 
 	// set http response header 
 	THeader header[] = {{"Content-type", "text/plain"}};
@@ -253,8 +256,10 @@ EnHttpParseResult CHttpServerListenerImpl::HttpHandle(IHttpServer* pSender, CONN
 	int reCode = HSC_OK;
 	std::string reStatus = "OK";
 	if (!res) {
-		reCode = HSC_INTERNAL_SERVER_ERROR;
-		reStatus = "ERROR";
+		/*
+		 *reCode = HSC_INTERNAL_SERVER_ERROR;
+		 *reStatus = "ERROR";
+		 */
 	}
 	pSender->SendResponse(dwConnID, 
 			reCode, reStatus.data(),
@@ -275,7 +280,7 @@ EnHttpParseResult CHttpServerListenerImpl::HttpHandle(IHttpServer* pSender, CONN
 	return HPR_OK;
 }
 
-bool CHttpServerListenerImpl::HttpHandle(const std::string& sBody, std::string& sResponse) {
+bool CHttpServerListenerImpl::HttpHandleProcess(const std::string& sBody, std::string& sResponse) {
 	//TODO
 	// parse content json body
 	Json::Reader reader;
@@ -292,19 +297,27 @@ bool CHttpServerListenerImpl::HttpHandle(const std::string& sBody, std::string& 
 		cmdCode = rootValue["cmdcode"].asInt();
 		//TODO
 		// do some secure check, md5, access time, etc..
-		
-		switch (cmdCode) {
-		case ECHO_TEST: {
-			CEchoHttpHandlePtr handle = std::make_shared<CEchoHttpHandle>();
-			res = handle->Handle(sResponse);
-			std::cout<< "echo_test :" << sResponse<<std::endl;
-			break;
-		}
-		default: {
+		if(HttpHandler::ms_handles.find(cmdCode) != HttpHandler::ms_handles.end()) {
+			auto handle = HttpHandler::ms_handles[cmdCode];
+			handle(sResponse);
+		} else {
 			res = false;
-			sResponse = "UNKONW_HTTP_CMD";
+			sResponse = "UNKNOW_HTTP_CMD";
 		}
-		}
+		/*
+		 *
+		 *switch (cmdCode) {
+		 *case ECHO_TEST: {
+		 *        CEchoHttpHandlePtr handle = std::make_shared<CEchoHttpHandle>();
+		 *        res = handle->Handle(sResponse);
+		 *        break;
+		 *}
+		 *default: {
+		 *        res = false;
+		 *        sResponse = "UNKONW_HTTP_CMD";
+		 *}
+		 *}
+		 */
 	} 
 	catch(std::exception& e) {
 		sResponse = e.what();

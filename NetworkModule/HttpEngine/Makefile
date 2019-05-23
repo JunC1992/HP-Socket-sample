@@ -1,7 +1,8 @@
 CC=g++
-LIBS=-lhpsocket -ljsoncpp
+LIBS=-lhpsocket -ljsoncpp -lpthread
 CPPS=./HttpServerEngine.cpp \
      ./HttpServer.cpp \
+     ../HttpHandle/HttpHandle.cpp \
      ../HttpHandle/EchoHandle/echoHandle.cpp \
      test.cpp
 
