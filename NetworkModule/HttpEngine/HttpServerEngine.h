@@ -52,6 +52,12 @@ public:
 	void Init();
 
 public:
+	// http server type http||https
 	std::string m_strName;
+
+	// http handle thread pool
 	ThreadPool m_handlePool;
+
+	// http body data
+	std::map<CONNID, std::string> m_bodyData; 
 };

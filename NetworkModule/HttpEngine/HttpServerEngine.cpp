@@ -59,6 +59,7 @@ EnHandleResult CHttpServerListenerImpl::OnClose(ITcpServer* pSender, CONNID dwCo
  *
  */
 	std::cout << dwConnID << "on close" << std::endl;
+	m_bodyData.erase(dwConnID);
 	return HR_OK;
 }
 
@@ -73,6 +74,7 @@ EnHttpParseResult CHttpServerListenerImpl::OnMessageBegin(IHttpServer* pSender, 
 {
 	std::cout<< "on message begin" << std::endl;
 	//std::cout<< m_strName << std::endl;
+	m_bodyData[dwConnID] = std::string();
 	return HPR_OK;
 }
 
@@ -104,7 +106,8 @@ EnHttpParseResult CHttpServerListenerImpl::OnBody(IHttpServer* pSender, CONNID d
 {
 	std::cout<< "on body" << std::endl;
 	//std::cout<< pData << std::endl;
-	pSender->SetConnectionExtra(dwConnID, PVOID(pData));
+	//pSender->SetConnectionExtra(dwConnID, PVOID(pData));
+	m_bodyData[dwConnID] += (char*) pData;
 
 	return HPR_OK;
 }
@@ -240,18 +243,22 @@ EnHandleResult CHttpServerListenerImpl::OnWSMessageComplete(IHttpServer* pSender
 
 EnHttpParseResult CHttpServerListenerImpl::HttpHandle(IHttpServer* pSender, CONNID dwConnID){
 	// http extra body;
-	LPVOID pExBody = nullptr;
-	if(!pSender->GetConnectionExtra(dwConnID, (PVOID*)&pExBody)) {
-		std::cout << "get connection extra error" << std::endl;
- 		return HPR_ERROR;
-	}
-	if (pExBody == nullptr) {
-		// default extra body init
-		pExBody = (LPVOID)"HX_DEFAULT";
-	}
+	/*
+	 *LPVOID pExBody = nullptr;
+	 *if(!pSender->GetConnectionExtra(dwConnID, (PVOID*)&pExBody)) {
+	 *        std::cout << "get connection extra error" << std::endl;
+         *n HPR_ERROR;
+	 *}
+	 *if (pExBody == nullptr) {
+	 *        // default extra body init
+	 *        pExBody = (LPVOID)"HX_DEFAULT";
+	 *}
+	 */
 
+	std::string pExBody = m_bodyData[dwConnID];
 	std::string strRes;
-	auto res = HttpHandleProcess((char*) pExBody, strRes);
+	//auto res = HttpHandleProcess((char*) pExBody, strRes);
+	auto res = HttpHandleProcess(pExBody, strRes);
 
 	// set http response header 
 	THeader header[] = {{"Content-type", "text/plain"}};
