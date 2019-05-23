@@ -2,12 +2,13 @@
 
 #define HTTP_NAME "http"
 
-CHttpServerListenerImpl g_listener(HTTP_NAME);
-CHttpServerPtr g_http_server(&g_listener);
+CHttpServerListenerImpl g_HttpEngine(HTTP_NAME);
+CHttpServerPtr g_HttpServer(&g_HttpEngine);
 
 bool CHttpServerDaemon::Init(){
 	// TODO
-	// init http server daemon 
+	// init http server engine
+	g_HttpEngine.Init();
 	return true;
 }
 
@@ -15,7 +16,7 @@ bool CHttpServerDaemon::Start(){
 	// start http server daemon
 	Init();
 	SetHandleFactory();
-	if(g_http_server->Start(m_ip, m_port)) {
+	if(g_HttpServer->Start(m_ip, m_port)) {
 		// TODO
 		// log launch error
 		return false;
@@ -25,7 +26,7 @@ bool CHttpServerDaemon::Start(){
 
 bool CHttpServerDaemon::Stop(){
 	// stop http server daemon
-	g_http_server->Stop();
+	g_HttpServer->Stop();
 	return true;
 }
 

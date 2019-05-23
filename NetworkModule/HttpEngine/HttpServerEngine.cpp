@@ -122,11 +122,14 @@ EnHttpParseResult CHttpServerListenerImpl::OnChunkComplete(IHttpServer* pSender,
 EnHttpParseResult CHttpServerListenerImpl::OnMessageComplete(IHttpServer* pSender, CONNID dwConnID)
 {
 	std::cout<< "on message complete : " << dwConnID << std::endl;
-
-	// TODO 
-	// thread
-	std::thread th(&CHttpServerListenerImpl::HttpHandle, this, pSender, dwConnID);
-	th.detach();
+/*
+ *
+ *        std::thread th(&CHttpServerListenerImpl::HttpHandle, this, pSender, dwConnID);
+ *        th.detach();
+ */
+	m_handlePool.AddTask([=]{
+		HttpHandle(pSender, dwConnID);
+	});
 	return HPR_OK;
 }
 
@@ -281,7 +284,6 @@ EnHttpParseResult CHttpServerListenerImpl::HttpHandle(IHttpServer* pSender, CONN
 }
 
 bool CHttpServerListenerImpl::HttpHandleProcess(const std::string& sBody, std::string& sResponse) {
-	//TODO
 	// parse content json body
 	Json::Reader reader;
 	Json::Value rootValue;
@@ -298,14 +300,13 @@ bool CHttpServerListenerImpl::HttpHandleProcess(const std::string& sBody, std::s
 		//TODO
 		// do some secure check, md5, access time, etc..
 		if(HttpHandler::ms_handles.find(cmdCode) != HttpHandler::ms_handles.end()) {
-			auto handle = HttpHandler::ms_handles[cmdCode];
-			handle(sResponse);
+			auto handler = HttpHandler::ms_handles[cmdCode];
+			handler(sResponse);
 		} else {
 			res = false;
 			sResponse = "UNKNOW_HTTP_CMD";
 		}
 		/*
-		 *
 		 *switch (cmdCode) {
 		 *case ECHO_TEST: {
 		 *        CEchoHttpHandlePtr handle = std::make_shared<CEchoHttpHandle>();
@@ -324,4 +325,9 @@ bool CHttpServerListenerImpl::HttpHandleProcess(const std::string& sBody, std::s
 	}
 
 	return res;
+}
+
+void CHttpServerListenerImpl::Init() {
+	// set http handle thread pool
+	m_handlePool.Start();
 }

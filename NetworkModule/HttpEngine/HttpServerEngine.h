@@ -10,6 +10,7 @@
 
 //#include "../common/BufferPtr.h"
 #include "../HttpHandle/HttpHandle.h"
+#include "../common/queue/ThreadPool.hpp"
 
 class CHttpServerListenerImpl : public CHttpServerListener
 {
@@ -33,7 +34,8 @@ private:
 	virtual EnHttpParseResult OnUpgrade(IHttpServer* pSender, CONNID dwConnID, EnHttpUpgradeType enUpgradeType);
 	virtual EnHttpParseResult OnParseError(IHttpServer* pSender, CONNID dwConnID, int iErrorCode, LPCSTR lpszErrorDesc);
 
-	virtual EnHandleResult OnWSMessageHeader(IHttpServer* pSender, CONNID dwConnID, BOOL bFinal, BYTE iReserved, BYTE iOperationCode, const BYTE lpszMask[4], ULONGLONG ullBodyLen);
+	virtual EnHandleResult OnWSMessageHeader(IHttpServer* pSender, CONNID dwConnID, BOOL bFinal, 
+			BYTE iReserved, BYTE iOperationCode, const BYTE lpszMask[4], ULONGLONG ullBodyLen);
 	virtual EnHandleResult OnWSMessageBody(IHttpServer* pSender, CONNID dwConnID, const BYTE* pData, int iLength);
 	virtual EnHandleResult OnWSMessageComplete(IHttpServer* pSender, CONNID dwConnID);
 
@@ -41,16 +43,15 @@ private:
 	std::string GetHeaderSummary(IHttpServer* pSender, CONNID dwConnID, LPCSTR lpszSep = "  ", int iSepCount = 0, BOOL bWithContentLength = TRUE);
 
 	// http request handle
-	//void HttpHandle(const std::string& content);
 	EnHttpParseResult HttpHandle (IHttpServer* pSender, CONNID dwConnID);
 	bool HttpHandleProcess (const std::string& sBody, std::string& sResponse);
 
 public:
-	CHttpServerListenerImpl(LPCTSTR lpszName)
-	: m_strName	(lpszName)
-	{
-	}
+	CHttpServerListenerImpl(LPCTSTR lpszName): m_strName(lpszName){}
+	// http server engine init
+	void Init();
 
 public:
 	std::string m_strName;
+	ThreadPool m_handlePool;
 };
