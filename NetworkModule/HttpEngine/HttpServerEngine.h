@@ -60,9 +60,9 @@ public:
 	ThreadPool m_handleTHPool;
 
 	// http body memory pool, default capacity 4096
-	MemoryPool<char> m_bodyMEMPool;
+	//MemoryPool<char> m_bodyMEMPool;
 
 	// http body data
 	std::map<CONNID, std::string> m_bodyData; 
-	std::map<CONNID, char*> mC_bodyData; 
+	//std::map<CONNID, char*> mC_bodyData; 
 };

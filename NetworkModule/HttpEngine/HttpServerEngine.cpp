@@ -59,8 +59,8 @@ EnHandleResult CHttpServerListenerImpl::OnClose(ITcpServer* pSender, CONNID dwCo
  *
  */
 	std::cout << dwConnID << "on close" << std::endl;
-	//m_bodyData.erase(dwConnID);
-	m_bodyMEMPool.destroy(mC_bodyData[dwConnID]);
+	m_bodyData.erase(dwConnID);
+	//m_bodyMEMPool.destroy(mC_bodyData[dwConnID]);
 	return HR_OK;
 }
 
@@ -75,9 +75,9 @@ EnHttpParseResult CHttpServerListenerImpl::OnMessageBegin(IHttpServer* pSender, 
 {
 	std::cout<< "on message begin" << std::endl;
 	//std::cout<< m_strName << std::endl;
-	//m_bodyData[dwConnID] = std::string();
-	if mC_bodyData.find();
-	mC_bodyData[dwConnID] = m_bodyMEMPool.allocate();
+	//if mC_bodyData.find();
+	//mC_bodyData[dwConnID] = m_bodyMEMPool.allocate();
+	m_bodyData[dwConnID] = std::string();
 	return HPR_OK;
 }
 
@@ -108,12 +108,10 @@ EnHttpParseResult CHttpServerListenerImpl::OnHeadersComplete(IHttpServer* pSende
 EnHttpParseResult CHttpServerListenerImpl::OnBody(IHttpServer* pSender, CONNID dwConnID, const BYTE* pData, int iLength)
 {
 	std::cout<< "on body" << std::endl;
-	//std::cout<< pData << std::endl;
 	//pSender->SetConnectionExtra(dwConnID, PVOID(pData));
-	//m_bodyData[dwConnID] += (char*) pData;
-	std::string tmp += (char*) pData;
-	memncpy(mC_bodyData[dwConnID], tmp.data(), tmp.length);
-	//m_bodyData[dwConnID] += (char*) pData;
+	//std::string tmp += (char*) pData;
+	//memncpy(mC_bodyData[dwConnID], tmp.data(), tmp.length);
+	m_bodyData[dwConnID] += (char*) pData;
 
 	return HPR_OK;
 }
@@ -261,9 +259,8 @@ EnHttpParseResult CHttpServerListenerImpl::HttpHandle(IHttpServer* pSender, CONN
 	 *}
 	 */
 
-	std::string pExBody = m_bodyData[dwConnID];
 	std::string strRes;
-	//auto res = HttpHandleProcess((char*) pExBody, strRes);
+	std::string pExBody = m_bodyData[dwConnID];
 	auto res = HttpHandleProcess(pExBody, strRes);
 
 	// set http response header 
