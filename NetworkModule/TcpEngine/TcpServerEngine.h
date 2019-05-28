@@ -1,13 +1,15 @@
 #pragma once
+#include <iostream>
+#include <string.h>
+#include <vector>
+#include <map>
+
 #include <hpsocket/HPSocket.h>
 #include <hpsocket/common/GlobalDef.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <iostream>
-#include <vector>
+#include <jsoncpp/json/json.h>
 
-//#include "../global/helper.h"
+#include "../TcpHandle/TcpHandle.h"
+
 struct HX_MSG {
 	std::string msg;
 };
@@ -26,16 +28,20 @@ public:
 	virtual EnHandleResult OnShutdown(ITcpServer* pSender);
 
 public:
-	//parse recrived pkg
-	std::vector<std::string> Parser(const std::string &content);
-	//packet responsed msg
-	std::string Packet(const std::string &content);
-
-	void Handle(const std::string &content);
+	// registed handler
 	void Register();
+
+	//parse recrived pkg
+	std::vector<std::string> Parser(const CONNID dwConnID, const std::string& content);
+	void Handle(const CONNID dwConnID, const std::string& content);
+	void HandleProcess(const std::string& content);
+
+	//packet responsed msg
+	std::string Packet(const std::string& content);
 
 private:
 
 	// tcp stream remain data
 	//std::string m_remain;
+	std::map<CONNID, std::string> m_remain;
 };

@@ -1,19 +1,21 @@
 #pragma once
-#include <hpsocket/HPSocket.h>
-#include <stdlib.h>
-#include <unistd.h>
 #include <iostream>
+#include <hpsocket/HPSocket.h>
 
 #include "TcpServerEngine.h"
 
+// default serv_ip & serv_port
+#define DEFAULT_TCP_IP "127.0.0.1"
+#define DEFAULT_TCP_PORT 8081
+
 /* Listener Class */
-class CTcpServerDeamon {
+class CTcpServerDaemon {
 
 public:
-	CTcpServerDeamon()=default;
-	CTcpServerDeamon(const char * ip, const int port): m_ip(ip), m_port(port){};
+	CTcpServerDaemon():CTcpServerDaemon(DEFAULT_TCP_IP, DEFAULT_TCP_PORT){};
+	CTcpServerDaemon(const char* ip, const int port): m_ip(ip), m_port(port){};
+	~CTcpServerDaemon()=default;
 
-	~CTcpServerDeamon()=default;
 public:
 	// init tcp daemon
 	bool Init(int threads);
@@ -30,7 +32,6 @@ public:
 	// thread pool set
 	// package parse
 private:
-	const char * m_ip;
+	const char* m_ip;
 	const int m_port;
 };
-

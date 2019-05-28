@@ -32,7 +32,6 @@ EnHandleResult CHttpServerListenerImpl::OnHandShake(ITcpServer* pSender, CONNID 
 
 EnHandleResult CHttpServerListenerImpl::OnReceive(ITcpServer* pSender, CONNID dwConnID, const BYTE* pData, int iLength)
 {
-
 	std::cout<< "receive data: " << pData << std::endl;
 	/*
 	 *if(pSender->Send(dwConnID, pData, iLength))
@@ -60,7 +59,7 @@ EnHandleResult CHttpServerListenerImpl::OnClose(ITcpServer* pSender, CONNID dwCo
  */
 	std::cout << dwConnID << "on close" << std::endl;
 	m_bodyData.erase(dwConnID);
-	//m_bodyMEMPool.destroy(mC_bodyData[dwConnID]);
+	//m_bodyMEMPool.deallocate(mC_bodyData[dwConnID]);
 	return HR_OK;
 }
 
@@ -130,7 +129,6 @@ EnHttpParseResult CHttpServerListenerImpl::OnMessageComplete(IHttpServer* pSende
 {
 	std::cout<< "on message complete : " << dwConnID << std::endl;
 /*
- *
  *        std::thread th(&CHttpServerListenerImpl::HttpHandle, this, pSender, dwConnID);
  *        th.detach();
  */
@@ -274,6 +272,7 @@ EnHttpParseResult CHttpServerListenerImpl::HttpHandle(IHttpServer* pSender, CONN
 		 *reStatus = "ERROR";
 		 */
 	}
+
 	pSender->SendResponse(dwConnID, 
 			reCode, reStatus.data(),
 			header, iHeaderCount,
@@ -282,13 +281,8 @@ EnHttpParseResult CHttpServerListenerImpl::HttpHandle(IHttpServer* pSender, CONN
 			strRes.length()
 			);
 
-        if(!pSender->IsKeepAlive(dwConnID)) {
+        if(!pSender->IsKeepAlive(dwConnID))
 		pSender->Release(dwConnID);
-	} else {
-		// reset http extra body
-		const char* pData = "HX_DEFAULT";
-		pSender->SetConnectionExtra(dwConnID, PVOID(pData));
-	}
 
 	return HPR_OK;
 }

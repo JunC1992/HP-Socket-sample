@@ -1,4 +1,5 @@
 #include "TcpServerEngine.h"
+#include <thread>
 
 //set msg header & end
 const char* const G_MSGHEADER = "<HX>";
@@ -29,6 +30,9 @@ EnHandleResult CTcpServerEngine::OnAccept(ITcpServer* pSender, CONNID dwConnID, 
 	pSender->GetRemoteAddress(dwConnID, szAddress, iAddressLen, usPort);
 	std::cout<< "get one connect: " << szAddress << ":" << usPort << "\n";
 
+	// set $CONNID stream remain buffer 
+	m_remain.insert(std::make_pair(dwConnID, ""));
+
 	return HR_OK;
 }
 
@@ -40,32 +44,28 @@ EnHandleResult CTcpServerEngine::OnHandShake(ITcpServer* pSender, CONNID dwConnI
 EnHandleResult CTcpServerEngine::OnReceive(ITcpServer* pSender, CONNID dwConnID, int iLength) 
 {
 	std::vector<BYTE> vec;
-
 	ITcpPullServer* pServer = ITcpPullServer::FromS(pSender);
-	// package size 16
-	int required = 16;
+	// fetch buffer chunk size 16
+	int chunkSize = 16;
 	int remain = iLength;
 
 	while(remain > 0){
-		BYTE buf[required];
-		if (required > remain) {
-			required = remain;
+		BYTE buf[chunkSize];
+		if (chunkSize > remain) {
+			chunkSize = remain;
 		}
-		EnFetchResult result = pServer->Fetch(dwConnID, buf, required);
+		EnFetchResult result = pServer->Fetch(dwConnID, buf, chunkSize);
 		if(result == FR_OK) {
-			vec.insert(vec.end(), buf, buf+required);
-			remain -= required;
+			vec.insert(vec.end(), buf, buf+chunkSize);
+			remain -= chunkSize;
 		} else if (result == FR_DATA_NOT_FOUND) {
-			//TODO
-			//handle err
 			return HR_ERROR;
 		}
 	}
 	
-	std::string res(vec.begin(), vec.end());
-	Handle(std::move(res));
-	//TODO
-	// std::cout<< res << std::endl;
+	std::string content(vec.begin(), vec.end());
+	Handle(dwConnID, std::move(content));
+
 	return HR_OK;
 }
 
@@ -76,6 +76,8 @@ EnHandleResult CTcpServerEngine::OnSend(ITcpServer* pSender, CONNID dwConnID, co
 
 EnHandleResult CTcpServerEngine::OnClose(ITcpServer* pSender, CONNID dwConnID, EnSocketOperation enOperation, int iErrorCode)
 {
+	// remove $CONNID stream remain
+	m_remain.erase(dwConnID);
 	return HR_OK;
 }
 
@@ -84,52 +86,75 @@ EnHandleResult CTcpServerEngine::OnShutdown(ITcpServer* pSender)
 	return HR_OK;
 }
 
-std::vector<std::string> CTcpServerEngine::Parser(const std::string &content){
-/*
- *        std::string allMsgStr = m_remain + content;
- *        auto str_startpos = content.find(G_MSGHEADER); 
- *        auto end_startpos = content.find(G_MSGEND);
- *
- *        if (str_startpos == std::string::npos || end_startpos == std::string::npos)
- *                m_remain = allMsgStr;
- *
- *        std::vector<std::string> res;
- *        while (str_startpos != std::string::npos && end_startpos != std::string::npos){
- *                //std::string res(content.begin()+4, content.end()-5);
- *                m_remain = allMsgStr.substr(end_startpos + strlen(G_MSGEND));
- *                str_startpos = allMsgStr.find(G_MSGHEADER, str_startpos + strlen(G_MSGHEADER));
- *                end_startpos = allMsgStr.find(G_MSGEND, end_startpos + 1);
- *
- *                str_startpos = str_startpos + strlen(G_MSGHEADER);
- *                auto tmp = allMsgStr.substr(str_startpos, end_startpos - str_startpos);
- *                res.push_back(tmp);
- *        }
- *
- */
- 	std::vector<std::string> res;
-        auto str_startpos = content.find(G_MSGHEADER); 
-        auto end_startpos = content.find(G_MSGEND);
-        if (str_startpos == std::string::npos || end_startpos == std::string::npos) {
-		// incomplete pkg
-		return res;
+std::vector<std::string> CTcpServerEngine::Parser(const CONNID dwConnID, const std::string &content){
+	auto allMsgStr = m_remain[dwConnID] + content;
+	auto startPos = allMsgStr.find(G_MSGHEADER); 
+	auto endPos = allMsgStr.find(G_MSGEND);
+	auto headLen = strlen(G_MSGHEADER);
+	auto endLen = strlen(G_MSGEND);
+
+	if (startPos == std::string::npos || endPos == std::string::npos)
+		m_remain[dwConnID] = allMsgStr;
+
+	std::vector<std::string> res;
+	while (startPos != std::string::npos && endPos != std::string::npos){
+		auto pkg = allMsgStr.substr(startPos + headLen, endPos - startPos - headLen);
+		res.push_back(pkg);
+
+		allMsgStr = allMsgStr.substr(endPos + endLen);
+		startPos = allMsgStr.find(G_MSGHEADER); 
+		endPos = allMsgStr.find(G_MSGEND);
+		m_remain[dwConnID] = allMsgStr;
 	}
-	//res.push_back(content.substr(str_startpos, end_startpos - str_startpos));
-	auto pos = str_startpos + strlen(G_MSGHEADER);
-	res.push_back(content.substr(pos, end_startpos - pos));
 
 	return res;
 }
 
-void CTcpServerEngine::Handle(const std::string &content){
-	if(content.length() < G_ZEORMSGLEN) {
-		return;
-	}
+void CTcpServerEngine::Handle(const CONNID dwConnID, const std::string& content){
 	// parse recrived pkg
-	auto res = Parser(content);
-	//TODO
-	// business handle
-	// push response into sys_mq
-	for(auto v : res) {
-		std::cout<< v << std::endl;
+	auto vec = Parser(dwConnID, content);
+
+	for(auto v : vec) {
+		// push response into sys_mq
+		std::thread th([=]{
+			HandleProcess(v);
+		});
+		th.detach();
 	}
+}
+
+void CTcpServerEngine::HandleProcess(const std::string& content) {
+	//std::cout<< content <<std::endl;
+	std::string sResponse;
+	// parse content json body
+	Json::Reader reader;
+	Json::Value rootValue;
+	if (!reader.parse(content, rootValue)) {
+		sResponse = "ERROR_REQUEST_BODY";
+		// TODO
+		// respose to client
+		std::cout << sResponse << std::endl;
+		return ;
+	}
+	
+	int cmdCode = 0;
+	try{
+		// handle request action
+		cmdCode = rootValue["cmdcode"].asInt();
+		//TODO
+		// do some secure check, md5, access time, etc..
+		if(TcpHandler::ms_handles.find(cmdCode) != TcpHandler::ms_handles.end()) {
+			auto handler = TcpHandler::ms_handles[cmdCode];
+			handler(sResponse);
+		} else {
+			sResponse = "UNKNOW_CMD";
+		}
+	} 
+	catch(std::exception& e) {
+		sResponse = e.what();
+	}
+
+	// TODO
+	// respose to client
+	std::cout << "in handle: " << sResponse << std::endl;
 }

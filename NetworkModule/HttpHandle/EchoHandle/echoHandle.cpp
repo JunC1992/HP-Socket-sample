@@ -6,6 +6,6 @@ bool CEchoHttpHandle::Handle(std::string& content){
 }
 
 void CEchoHttpHandle::registedHttpHandle(std::map<int, std::function<void(std::string&)>>& handleMap) {
-	auto pT = std::bind(&CEchoHttpHandle::Handle, this, std::placeholders::_1);
-	handleMap[ECHO_TEST] = pT;
+	// registed ECHO_TEST
+	handleMap[ECHO_TEST] = std::bind(&CEchoHttpHandle::Handle, this, std::placeholders::_1);
 }

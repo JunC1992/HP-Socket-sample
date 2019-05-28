@@ -5,11 +5,12 @@ CPPS=./HttpServerEngine.cpp \
      ../HttpHandle/HttpHandle.cpp \
      ../HttpHandle/EchoHandle/echoHandle.cpp \
      test.cpp
+OPTI= -O2
 
 TARGET=httpserv
 
 all:
-	$(CC) $(CPPS) $(LIBS) -o $(TARGET) -g
+	$(CC) $(CPPS) $(LIBS) $(OPTI) -o $(TARGET) -g
 	
 clean:
 	rm $(TARGET) -f
