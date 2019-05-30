@@ -33,12 +33,7 @@ EnHandleResult CHttpServerListenerImpl::OnHandShake(ITcpServer* pSender, CONNID 
 EnHandleResult CHttpServerListenerImpl::OnReceive(ITcpServer* pSender, CONNID dwConnID, const BYTE* pData, int iLength)
 {
 	std::cout<< "receive data: " << pData << std::endl;
-	/*
-	 *if(pSender->Send(dwConnID, pData, iLength))
-	 *        return HR_OK;
-	 *else
-	 *        return HR_ERROR;
-	 */
+
 	 return HR_OK;
 }
 
@@ -233,8 +228,8 @@ bool CHttpServerListenerImpl::HttpHandleProcess(const std::string& sBody, std::s
 		cmdCode = rootValue["cmdcode"].asInt();
 		//TODO
 		// do some secure check, md5, access time, etc..
-		if(HttpHandler::ms_handles.find(cmdCode) != HttpHandler::ms_handles.end()) {
-			auto handler = HttpHandler::ms_handles[cmdCode];
+		if(CHttpHandler::ms_handles.find(cmdCode) != CHttpHandler::ms_handles.end()) {
+			auto handler = CHttpHandler::ms_handles[cmdCode];
 			handler(sResponse);
 		} else {
 			res = false;

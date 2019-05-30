@@ -32,6 +32,6 @@ bool CHttpServerDaemon::Stop(){
 
 bool CHttpServerDaemon::SetHandleFactory(){
 	// register http server daemon handle 
-	HttpHandler::SetHttpHandle();
+	CHttpHandler::SetHttpHandle();
 	return true;
 }

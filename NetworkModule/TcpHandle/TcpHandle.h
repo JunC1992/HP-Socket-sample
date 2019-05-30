@@ -8,7 +8,7 @@
 #include "NetCommandCode.h"
 #include "EchoHandle/echoHandle.h"
 
-class TcpHandler{
+class CTcpHandler{
 
 public:
 	static void SetTcpHandle();

@@ -23,6 +23,6 @@ bool CTcpServerDaemon::Start(){
 
 bool CTcpServerDaemon::SetHandleFactory(){
 	// register tcp request handle
-	TcpHandler::SetTcpHandle();
+	CTcpHandler::SetTcpHandle();
 	return true;
 }

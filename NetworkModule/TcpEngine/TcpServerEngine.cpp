@@ -142,8 +142,8 @@ void CTcpServerEngine::HandleProcess(ITcpServer* pSender, const CONNID dwConnID,
 		cmdCode = rootValue["cmdcode"].asInt();
 		//TODO
 		// do some secure check, md5, access time, etc..
-		if(TcpHandler::ms_handles.find(cmdCode) != TcpHandler::ms_handles.end()) {
-			auto handler = TcpHandler::ms_handles[cmdCode];
+		if(CTcpHandler::ms_handles.find(cmdCode) != CTcpHandler::ms_handles.end()) {
+			auto handler = CTcpHandler::ms_handles[cmdCode];
 			handler(sResponse);
 		} else {
 			sResponse = "UNKNOW_CMD";

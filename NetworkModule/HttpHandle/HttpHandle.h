@@ -8,7 +8,7 @@
 #include "NetCommandCode.h"
 #include "EchoHandle/echoHandle.h"
 
-class HttpHandler{
+class CHttpHandler{
 
 public:
 	static void SetHttpHandle();
