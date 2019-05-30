@@ -1,17 +1,18 @@
 #pragma once
 
-#include <hpsocket/HPSocket.h> 
-#include <hpsocket/common/GlobalDef.h> 
-#include <jsoncpp/json/json.h>
-
 #include <iostream>
 #include <string>
 #include <thread>
 
-//#include "../common/BufferPtr.h"
-#include "../HttpHandle/HttpHandle.h"
+#include <hpsocket/HPSocket.h> 
+#include <hpsocket/common/GlobalDef.h> 
+#include <jsoncpp/json/json.h>
+
 #include "../common/queue/ThreadPool.hpp"
 #include "../common/mempool/MemoryPool.h"
+#include "../common/mutex/cmutex.h"
+
+#include "../HttpHandle/HttpHandle.h"
 
 class CHttpServerListenerImpl : public CHttpServerListener
 {
@@ -44,7 +45,7 @@ private:
 	std::string GetHeaderSummary(IHttpServer* pSender, CONNID dwConnID, LPCSTR lpszSep = "  ", int iSepCount = 0, BOOL bWithContentLength = TRUE);
 
 	// http request handle
-	EnHttpParseResult HttpHandle (IHttpServer* pSender, CONNID dwConnID);
+	EnHttpParseResult HttpHandle (IHttpServer* pSender, CONNID dwConnID, std::string& content);
 	bool HttpHandleProcess (const std::string& sBody, std::string& sResponse);
 
 public:
@@ -64,5 +65,4 @@ public:
 
 	// http body data
 	std::map<CONNID, std::string> m_bodyData; 
-	//std::map<CONNID, char*> mC_bodyData; 
 };

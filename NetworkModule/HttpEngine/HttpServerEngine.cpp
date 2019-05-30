@@ -108,8 +108,6 @@ EnHttpParseResult CHttpServerListenerImpl::OnBody(IHttpServer* pSender, CONNID d
 	//std::string tmp += (char*) pData;
 	//memncpy(mC_bodyData[dwConnID], tmp.data(), tmp.length);
 	//
-	// TODO
-	// rwmutex
 	std::string body(pData, pData + iLength);
 	m_bodyData[dwConnID] += body;
 
@@ -129,13 +127,16 @@ EnHttpParseResult CHttpServerListenerImpl::OnChunkComplete(IHttpServer* pSender,
 EnHttpParseResult CHttpServerListenerImpl::OnMessageComplete(IHttpServer* pSender, CONNID dwConnID)
 {
 	std::cout<< "on message complete : " << dwConnID << std::endl;
-/*
- *        std::thread th(&CHttpServerListenerImpl::HttpHandle, this, pSender, dwConnID);
- *        th.detach();
- */
-	m_handleTHPool.AddTask([=]{
-		HttpHandle(pSender, dwConnID);
+
+	// get body content
+	std::string content = m_bodyData[dwConnID];
+	m_handleTHPool.AddTask([&]{
+		HttpHandle(pSender, dwConnID, content);
 	});
+
+	// reset body buffer
+	m_bodyData[dwConnID] = "";
+
 	return HPR_OK;
 }
 
@@ -166,7 +167,7 @@ EnHandleResult CHttpServerListenerImpl::OnWSMessageComplete(IHttpServer* pSender
 	return HR_OK;
 }
 
-EnHttpParseResult CHttpServerListenerImpl::HttpHandle(IHttpServer* pSender, CONNID dwConnID){
+EnHttpParseResult CHttpServerListenerImpl::HttpHandle(IHttpServer* pSender, CONNID dwConnID, std::string& content){
 	// http extra body;
 	/*
 	 *LPVOID pExBody = nullptr;
@@ -180,9 +181,8 @@ EnHttpParseResult CHttpServerListenerImpl::HttpHandle(IHttpServer* pSender, CONN
 	 *}
 	 */
 
-	std::string strRes;
-	std::string pExBody = m_bodyData[dwConnID];
-	auto res = HttpHandleProcess(pExBody, strRes);
+	std::string resp;
+	auto res = HttpHandleProcess(content, resp);
 
 	// set http response header 
 	THeader header[] = {{"Content-type", "text/plain"}};
@@ -200,15 +200,13 @@ EnHttpParseResult CHttpServerListenerImpl::HttpHandle(IHttpServer* pSender, CONN
 			reCode, reStatus.data(),
 			header, iHeaderCount,
 			//(const BYTE*)(LPCSTR)"",
-			(const BYTE*)strRes.data(),
-			strRes.length()
+			(const BYTE*)resp.data(),
+			resp.length()
 			);
 
         if(!pSender->IsKeepAlive(dwConnID))
 		pSender->Release(dwConnID);
 
-	// reset ws body buffer
-	m_bodyData[dwConnID] = "";
 	return HPR_OK;
 }
 
