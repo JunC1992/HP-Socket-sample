@@ -1,7 +1,7 @@
 #include "TcpServerEngine.h"
 #include <thread>
 
-//set msg header & end
+// tcp msg header & end
 const char* const G_MSGHEADER = "<HX>";
 const char* const G_MSGEND = "<END>";
 const char* const G_ZEORMSG = "<HX><END>";
@@ -64,7 +64,7 @@ EnHandleResult CTcpServerEngine::OnReceive(ITcpServer* pSender, CONNID dwConnID,
 	}
 	
 	std::string content(vec.begin(), vec.end());
-	Handle(dwConnID, std::move(content));
+	Handle(pSender, dwConnID, content);
 
 	return HR_OK;
 }
@@ -110,20 +110,19 @@ std::vector<std::string> CTcpServerEngine::Parser(const CONNID dwConnID, const s
 	return res;
 }
 
-void CTcpServerEngine::Handle(const CONNID dwConnID, const std::string& content){
+void CTcpServerEngine::Handle(ITcpServer* pSender, const CONNID dwConnID, const std::string& content){
 	// parse recrived pkg
 	auto vec = Parser(dwConnID, content);
 
 	for(auto v : vec) {
 		// push response into sys_mq
-		std::thread th([=]{
-			HandleProcess(v);
+		m_handleTHPool.AddTask([=]{
+			HandleProcess(pSender, dwConnID, v);
 		});
-		th.detach();
 	}
 }
 
-void CTcpServerEngine::HandleProcess(const std::string& content) {
+void CTcpServerEngine::HandleProcess(ITcpServer* pSender, const CONNID dwConnID, const std::string& content) {
 	//std::cout<< content <<std::endl;
 	std::string sResponse;
 	// parse content json body
@@ -131,9 +130,9 @@ void CTcpServerEngine::HandleProcess(const std::string& content) {
 	Json::Value rootValue;
 	if (!reader.parse(content, rootValue)) {
 		sResponse = "ERROR_REQUEST_BODY";
-		// TODO
 		// respose to client
 		std::cout << sResponse << std::endl;
+		pSender->Send(dwConnID, (BYTE*)sResponse.data(), sResponse.length());
 		return ;
 	}
 	
@@ -154,7 +153,12 @@ void CTcpServerEngine::HandleProcess(const std::string& content) {
 		sResponse = e.what();
 	}
 
-	// TODO
 	// respose to client
+	pSender->Send(dwConnID, (BYTE*)sResponse.data(), sResponse.length());
 	std::cout << "in handle: " << sResponse << std::endl;
+}
+
+void CTcpServerEngine::Init() {
+	// set http handle thread pool
+	m_handleTHPool.Start();
 }

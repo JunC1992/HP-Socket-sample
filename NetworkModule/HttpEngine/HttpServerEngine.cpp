@@ -76,7 +76,9 @@ EnHttpParseResult CHttpServerListenerImpl::OnMessageBegin(IHttpServer* pSender, 
 	//std::cout<< m_strName << std::endl;
 	//if mC_bodyData.find();
 	//mC_bodyData[dwConnID] = m_bodyMEMPool.allocate();
-	m_bodyData[dwConnID] = std::string();
+	//
+	// set $CONNID body buffer 
+	m_bodyData.insert(std::make_pair(dwConnID, ""));
 	return HPR_OK;
 }
 
@@ -110,7 +112,11 @@ EnHttpParseResult CHttpServerListenerImpl::OnBody(IHttpServer* pSender, CONNID d
 	//pSender->SetConnectionExtra(dwConnID, PVOID(pData));
 	//std::string tmp += (char*) pData;
 	//memncpy(mC_bodyData[dwConnID], tmp.data(), tmp.length);
-	m_bodyData[dwConnID] += (char*) pData;
+	//
+	// TODO
+	// rwmutex
+	std::string body(pData, pData + iLength);
+	m_bodyData[dwConnID] += body;
 
 	return HPR_OK;
 }
@@ -140,57 +146,6 @@ EnHttpParseResult CHttpServerListenerImpl::OnMessageComplete(IHttpServer* pSende
 
 EnHttpParseResult CHttpServerListenerImpl::OnUpgrade(IHttpServer* pSender, CONNID dwConnID, EnHttpUpgradeType enUpgradeType)
 {
-/*
- *
- *        if(enUpgradeType == HUT_HTTP_TUNNEL)
- *        {
- *                pSender->SendResponse(dwConnID, HSC_OK, "Connection Established");
- *        }
- *        else if(enUpgradeType == HUT_WEB_SOCKET)
- *        {
- *                int iHeaderCount = 2;
- *                THeader header[] = {{"Connection", UPGRADE_HEADER},
- *                                                        {UPGRADE_HEADER, WEB_SOCKET_HEADER_VALUE},
- *                                                        {nullptr, nullptr},
- *                                                        {nullptr, nullptr}};
- *
- *
- *                LPCSTR lpszAccept = nullptr;
- *                
- *                if(!pSender->GetHeader(dwConnID, "Sec-WebSocket-Key", &lpszAccept))
- *                        return HPR_ERROR;
- *
- *                CStringA strAccept;
- *                ::MakeSecWebSocketAccept(lpszAccept, strAccept);
- *
- *                header[2].name	= "Sec-WebSocket-Accept";
- *                header[2].value	= strAccept;
- *                ++iHeaderCount;
- *
- *                CStringA strFirst;
- *                LPCSTR lpszProtocol = nullptr;
- *
- *                if(pSender->GetHeader(dwConnID, "Sec-WebSocket-Protocol", &lpszProtocol))
- *                {
- *                        int i = 0;
- *                        CStringA strProtocol(lpszProtocol);
- *                        strFirst = strProtocol.Tokenize(", ", i);
- *
- *                        if(!strFirst.IsEmpty())
- *                        {
- *                                header[3].name	= "Sec-WebSocket-Protocol";
- *                                header[3].value	= strFirst;
- *                                ++iHeaderCount;
- *                        }
- *                }
- *
- *                pSender->SendResponse(dwConnID, HSC_SWITCHING_PROTOCOLS, nullptr, header, iHeaderCount);
- *                pSender->SetConnectionExtra(dwConnID, new CBufferPtr);
- *        }
- *        else
- *                ASSERT(FALSE);
- *
- */
 	return HPR_OK;
 }
 
@@ -208,38 +163,11 @@ EnHandleResult CHttpServerListenerImpl::OnWSMessageHeader(IHttpServer* pSender, 
 
 EnHandleResult CHttpServerListenerImpl::OnWSMessageBody(IHttpServer* pSender, CONNID dwConnID, const BYTE* pData, int iLength)
 {
-/*
- *
- *        CBufferPtr* pBuffer = nullptr;
- *        pSender->GetConnectionExtra(dwConnID, (PVOID*)&pBuffer);
- *        VERIFY(pBuffer);
- *
- *        pBuffer->Cat(pData, iLength);
- *
- */
 	return HR_OK;
 }
 
 EnHandleResult CHttpServerListenerImpl::OnWSMessageComplete(IHttpServer* pSender, CONNID dwConnID)
 {
-/*
- *
- *        CBufferPtr* pBuffer = nullptr;
- *        pSender->GetConnectionExtra(dwConnID, (PVOID*)&pBuffer);
- *        VERIFY(pBuffer);
- *
- *        BOOL bFinal;
- *        BYTE iReserved, iOperationCode;
- *
- *        VERIFY(pSender->GetWSMessageState(dwConnID, &bFinal, &iReserved, &iOperationCode, nullptr, nullptr, nullptr));
- *
- *        pSender->SendWSMessage(dwConnID, bFinal, iReserved, iOperationCode, nullptr, pBuffer->Ptr(), (int)pBuffer->Size());
- *        pBuffer->Free();
- *
- *        if(iOperationCode == 0x8)
- *                pSender->Disconnect(dwConnID);
- *
- */
 	return HR_OK;
 }
 
@@ -284,6 +212,8 @@ EnHttpParseResult CHttpServerListenerImpl::HttpHandle(IHttpServer* pSender, CONN
         if(!pSender->IsKeepAlive(dwConnID))
 		pSender->Release(dwConnID);
 
+	// reset ws body buffer
+	m_bodyData[dwConnID] = "";
 	return HPR_OK;
 }
 

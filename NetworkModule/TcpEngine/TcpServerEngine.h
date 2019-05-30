@@ -9,6 +9,7 @@
 #include <jsoncpp/json/json.h>
 
 #include "../TcpHandle/TcpHandle.h"
+#include "../common/queue/ThreadPool.hpp"
 
 struct HX_MSG {
 	std::string msg;
@@ -27,19 +28,23 @@ public:
 	virtual EnHandleResult OnClose(ITcpServer* pSender, CONNID dwConnID, EnSocketOperation enOperation, int iErrorCode);
 	virtual EnHandleResult OnShutdown(ITcpServer* pSender);
 
+private:
+	//parse recrived pkg
+	std::vector<std::string> Parser(const CONNID dwConnID, const std::string& content);
+	void Handle(ITcpServer* pSender, const CONNID dwConnID, const std::string& content);
+	void HandleProcess(ITcpServer* pSender, const CONNID dwConnID, const std::string& content);
+
 public:
 	// registed handler
 	void Register();
 
-	//parse recrived pkg
-	std::vector<std::string> Parser(const CONNID dwConnID, const std::string& content);
-	void Handle(const CONNID dwConnID, const std::string& content);
-	void HandleProcess(const std::string& content);
-
-	//packet responsed msg
-	std::string Packet(const std::string& content);
+	// tcp server engine init
+	void Init();
 
 private:
+
+	// http handle thread pool
+	ThreadPool m_handleTHPool;
 
 	// tcp stream remain data
 	//std::string m_remain;
