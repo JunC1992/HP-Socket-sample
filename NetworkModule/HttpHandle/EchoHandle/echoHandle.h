@@ -3,17 +3,18 @@
 #include <memory>
 #include <map>
 
-#include "../NetCommandCode.h"
+#include "../../common/net/NetCommandCode.h"
+#include "../../common/net/NetBaseDef.h"
 
 class CEchoHttpHandle{
 public:
 	CEchoHttpHandle()=default;
 	~CEchoHttpHandle()=default;
 public:
-	void registedHttpHandle(std::map<int, std::function<void(std::string&)>>& handleMap);
+	void registedHttpHandle(HTTP_HANDLE_MAP& handleMap);
 
 public:
-	bool Handle(std::string& content);
+	bool Handle(const std::string& content, std::string& response);
 	void HandleDetail();
 };
 

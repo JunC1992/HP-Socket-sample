@@ -5,4 +5,4 @@ void CHttpHandler::SetHttpHandle(){
 	ce.registedHttpHandle(ms_handles);
 }
 
-std::map<int, std::function<void(std::string&)> > CHttpHandler::ms_handles;
+HTTP_HANDLE_MAP CHttpHandler::ms_handles;

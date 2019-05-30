@@ -5,4 +5,4 @@ void CTcpHandler::SetTcpHandle(){
 	ce.registedTcpHandle(ms_handles);
 }
 
-std::map<int, std::function<void(std::string&)> > CTcpHandler::ms_handles;
+TCP_HANDLE_MAP CTcpHandler::ms_handles;

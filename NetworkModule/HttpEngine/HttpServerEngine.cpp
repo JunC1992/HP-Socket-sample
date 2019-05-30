@@ -230,7 +230,7 @@ bool CHttpServerListenerImpl::HttpHandleProcess(const std::string& sBody, std::s
 		// do some secure check, md5, access time, etc..
 		if(CHttpHandler::ms_handles.find(cmdCode) != CHttpHandler::ms_handles.end()) {
 			auto handler = CHttpHandler::ms_handles[cmdCode];
-			handler(sResponse);
+			handler(sBody, sResponse);
 		} else {
 			res = false;
 			sResponse = "UNKNOW_HTTP_CMD";

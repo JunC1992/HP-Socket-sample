@@ -162,9 +162,7 @@ EnHandleResult CWSServerListenerImpl::OnWSMessageBody(IHttpServer* pSender, CONN
 }
 
 EnHandleResult CWSServerListenerImpl::OnWSMessageComplete(IHttpServer* pSender, CONNID dwConnID) {
-	//m_handleTHPool.AddTask([=]{
-		HttpHandle(pSender, dwConnID);
-	//});
+	HttpHandle(pSender, dwConnID);
 
 	return HR_OK;
 }
@@ -203,12 +201,12 @@ EnHandleResult CWSServerListenerImpl::HttpHandle(IHttpServer* pSender, CONNID dw
 	return HR_OK;
 }
 
-bool CWSServerListenerImpl::HttpHandleProcess(const std::string& sBody, std::string& sResponse) {
+bool CWSServerListenerImpl::HttpHandleProcess(const std::string& content, std::string& response) {
 	// parse content json body
 	Json::Reader reader;
 	Json::Value rootValue;
-	if (!reader.parse(sBody, rootValue)) {
-		sResponse = "ERROR_HTTP_BODY";
+	if (!reader.parse(content, rootValue)) {
+		response = "ERROR_HTTP_BODY";
 		return false;
 	}
 	bool res = false;
@@ -221,14 +219,14 @@ bool CWSServerListenerImpl::HttpHandleProcess(const std::string& sBody, std::str
 		// do some secure check, md5, access time, etc..
 		if(CWSHandler::ms_handles.find(cmdCode) != CWSHandler::ms_handles.end()) {
 			auto handler = CWSHandler::ms_handles[cmdCode];
-			handler(sResponse);
+			handler(content, response);
 		} else {
 			res = false;
-			sResponse = "UNKNOW_HTTP_CMD";
+			response = "UNKNOW_HTTP_CMD";
 		}
 	} 
 	catch(std::exception& e) {
-		sResponse = e.what();
+		response = e.what();
 	}
 
 	return res;

@@ -5,14 +5,17 @@
 #include <string>
 #include <map>
 
-#include "NetCommandCode.h"
+#include "../common/net/NetBaseDef.h"
+#include "../common/net/NetCommandCode.h"
 #include "EchoHandle/echoHandle.h"
 
 class CHttpHandler{
-
+public:
+	CHttpHandler()=default;
+	~CHttpHandler()=default;
 public:
 	static void SetHttpHandle();
 
 public:
-	static std::map<int, std::function<void(std::string&)> > ms_handles;
+	static HTTP_HANDLE_MAP ms_handles;
 };

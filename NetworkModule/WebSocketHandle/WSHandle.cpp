@@ -5,4 +5,4 @@ void CWSHandler::SetHttpHandle(){
 	ce.registedHttpHandle(ms_handles);
 }
 
-std::map<int, std::function<void(std::string&)> > CWSHandler::ms_handles;
+WS_HANDLE_MAP CWSHandler::ms_handles;

@@ -124,15 +124,15 @@ void CTcpServerEngine::Handle(ITcpServer* pSender, const CONNID dwConnID, const 
 
 void CTcpServerEngine::HandleProcess(ITcpServer* pSender, const CONNID dwConnID, const std::string& content) {
 	//std::cout<< content <<std::endl;
-	std::string sResponse;
+	std::string response;
 	// parse content json body
 	Json::Reader reader;
 	Json::Value rootValue;
 	if (!reader.parse(content, rootValue)) {
-		sResponse = "ERROR_REQUEST_BODY";
+		response = "ERROR_REQUEST_BODY";
 		// respose to client
-		std::cout << sResponse << std::endl;
-		pSender->Send(dwConnID, (BYTE*)sResponse.data(), sResponse.length());
+		std::cout << response << std::endl;
+		pSender->Send(dwConnID, (BYTE*)response.data(), response.length());
 		return ;
 	}
 	
@@ -144,18 +144,18 @@ void CTcpServerEngine::HandleProcess(ITcpServer* pSender, const CONNID dwConnID,
 		// do some secure check, md5, access time, etc..
 		if(CTcpHandler::ms_handles.find(cmdCode) != CTcpHandler::ms_handles.end()) {
 			auto handler = CTcpHandler::ms_handles[cmdCode];
-			handler(sResponse);
+			handler(content, response);
 		} else {
-			sResponse = "UNKNOW_CMD";
+			response = "UNKNOW_CMD";
 		}
 	} 
 	catch(std::exception& e) {
-		sResponse = e.what();
+		response = e.what();
 	}
 
 	// respose to client
-	pSender->Send(dwConnID, (BYTE*)sResponse.data(), sResponse.length());
-	std::cout << "in handle: " << sResponse << std::endl;
+	pSender->Send(dwConnID, (BYTE*)response.data(), response.length());
+	std::cout << "in handle: " << response << std::endl;
 }
 
 void CTcpServerEngine::Init() {
