@@ -129,7 +129,7 @@ EnHttpParseResult CHttpServerListenerImpl::OnMessageComplete(IHttpServer* pSende
 	std::cout<< "on message complete : " << dwConnID << std::endl;
 
 	// get body content
-	std::string content = m_bodyData[dwConnID];
+	std::string content = std::move(m_bodyData[dwConnID]);
 	m_handleTHPool.AddTask([&]{
 		HttpHandle(pSender, dwConnID, content);
 	});
@@ -211,17 +211,18 @@ EnHttpParseResult CHttpServerListenerImpl::HttpHandle(IHttpServer* pSender, CONN
 }
 
 bool CHttpServerListenerImpl::HttpHandleProcess(const std::string& sBody, std::string& sResponse) {
-	// parse content json body
-	Json::Reader reader;
-	Json::Value rootValue;
-	if (!reader.parse(sBody, rootValue)) {
-		sResponse = "ERROR_HTTP_BODY";
-		return false;
-	}
 	bool res = false;
-	int cmdCode = 0;
 
+	// parse content json body
 	try{
+		Json::Reader reader;
+		Json::Value rootValue;
+		if (!reader.parse(sBody, rootValue)) {
+			sResponse = "ERROR_HTTP_BODY";
+			return false;
+		}
+		int cmdCode = 0;
+
 		// handle request action
 		cmdCode = rootValue["cmdcode"].asInt();
 		//TODO
