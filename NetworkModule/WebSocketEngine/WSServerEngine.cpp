@@ -180,8 +180,15 @@ EnHandleResult CWSServerListenerImpl::HttpHandle(IHttpServer* pSender, CONNID dw
 		pSender->Disconnect(dwConnID);
 		return HR_OK;
 	}	
-
 	auto body = m_bodyData[dwConnID];
+	if (body == "ping") {
+		std::string resp = "pong";
+		BYTE optCode = 0x1;
+		pSender->SendWSMessage(dwConnID, bFinal, iReserved, optCode, nullptr, (BYTE*)resp.data(), resp.length());
+
+		return HR_OK;
+	}
+
 	auto vec = Parser(dwConnID, body);
 	std::cout << "cmd: " << vec.size() << std::endl;
 	for (auto v : vec) {

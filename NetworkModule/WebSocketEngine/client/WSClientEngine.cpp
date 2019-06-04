@@ -98,20 +98,50 @@ EnHandleResult CWSClientEngine::OnWSMessageHeader(IHttpClient* pSender, CONNID d
 
 EnHandleResult CWSClientEngine::OnWSMessageBody(IHttpClient* pSender, CONNID dwConnID, const BYTE* pData, int iLength)
 {
+	std::string body(pData, pData + iLength);
+	m_bodyData += body;
+	std::cout << "ws message body: " << m_bodyData << std::endl;
+	//std::cout << "ws message body: " << body << std::endl;
+
 	return HR_OK;
 }
 
 EnHandleResult CWSClientEngine::OnWSMessageComplete(IHttpClient* pSender, CONNID dwConnID)
 {
-	BYTE iOperationCode;
+	std::cout<< "on message complete : " << dwConnID << std::endl;
 
+	BYTE iOperationCode;
 	pSender->GetWSMessageState(nullptr, nullptr, &iOperationCode, nullptr, nullptr, nullptr);
 
 	if(iOperationCode == 0x8)
 		return HR_ERROR;
+
+	std::string content = std::move(m_bodyData);
+	handle(content);
+	m_bodyData = "";
 
 	return HR_OK;
 }
 
 // ------------------------------------------------------------------------------------------------------------- //
 
+void CWSClientEngine::handle(const std::string& content){
+	// handle ws server pong
+	if (content == "pong") {
+		m_heartBeatFiled = 0;
+		return;
+	}
+
+	// TODO
+	// handle quotation
+}
+
+bool CWSClientEngine::PongWatcher(){
+	// handle ws server pong
+	if (m_heartBeatFiled >= 5) {
+		return false;
+	}
+
+	m_heartBeatFiled++;
+	return true;
+}

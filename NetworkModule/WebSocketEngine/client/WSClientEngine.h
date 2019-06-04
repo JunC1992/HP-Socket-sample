@@ -15,7 +15,7 @@ const BYTE HTTP_WEB_SOCKET_MASK_KEY[]	= {0x1, 0x2, 0x3, 0x4};
 class CWSClientEngine : public CHttpClientListener
 {
 public:
-	CWSClientEngine(LPCTSTR lpszName): m_strName(lpszName){}
+	CWSClientEngine(LPCTSTR lpszName): m_strName(lpszName), m_heartBeatFiled(0){}
 	~CWSClientEngine()=default;
 
 private:
@@ -40,8 +40,18 @@ private:
 	virtual EnHandleResult OnWSMessageBody(IHttpClient* pSender, CONNID dwConnID, const BYTE* pData, int iLength);
 	virtual EnHandleResult OnWSMessageComplete(IHttpClient* pSender, CONNID dwConnID);
 
+private:
+	void handle(const std::string& content);
+	
 public:
+	bool PongWatcher();
 
 public:
 	std::string m_strName;
+
+	// ws body buffer
+	std::string m_bodyData;
+
+	// heartbeat filed times
+	int m_heartBeatFiled;
 };

@@ -10,7 +10,7 @@ int main(int argc, char* const argv[])
 	 */
 
 	CWSClient wsClient("127.0.0.1", 5555);
-	wsClient.Start();
+	wsClient.Run();
 	auto content = "<HX>{\"cmdcode\" :1000}<END>"; 
 
 	wsClient.SendWebSocket(content);
