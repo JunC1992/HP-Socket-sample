@@ -1,6 +1,8 @@
 CC=g++
-LIBS=-lhpsocket 
-CPPS= test.cpp
+LIBS=-lhpsocket -lpthread
+CPPS= test.cpp \
+      ./WSClientEngine.cpp \
+      ./WSClient.cpp
 #OPTI= -O2
 
 TARGET=wsclient
