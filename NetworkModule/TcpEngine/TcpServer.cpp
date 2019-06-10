@@ -6,14 +6,16 @@
  *        s_pserver->Stop();
  *}
  */
-
-CTcpServerEngine g_listener;
-CTcpPullServerPtr g_pserver(&g_listener);
+	
+CTcpServerDaemon::CTcpServerDaemon(const char* ip, const int port): m_ip(ip), m_port(port){
+	m_engine = std::make_shared<CTcpServerEngine>();
+	m_server = std::make_shared<CTcpPullServerPtr>(m_engine.get());
+}
 
 // HP-Socket tcp daemon start
 bool CTcpServerDaemon::Start(){
 	SetHandleFactory();
-	if(!g_pserver->Start(m_ip, m_port)) {
+	if(!(*m_server)->Start(m_ip, m_port)) {
 		//TODO
 		//log error msg
 		return false;

@@ -1,6 +1,6 @@
 #include "HttpServerEngine.h"
 
-EnHandleResult CHttpServerListenerImpl::OnPrepareListen(ITcpServer* pSender, SOCKET soListen)
+EnHandleResult CHttpServerEngine::OnPrepareListen(ITcpServer* pSender, SOCKET soListen)
 {
 	TCHAR szAddress[50];
 	int iAddressLen = sizeof(szAddress) / sizeof(TCHAR);
@@ -12,7 +12,7 @@ EnHandleResult CHttpServerListenerImpl::OnPrepareListen(ITcpServer* pSender, SOC
 	return HR_OK;
 }
 
-EnHandleResult CHttpServerListenerImpl::OnAccept(ITcpServer* pSender, CONNID dwConnID, UINT_PTR soClient)
+EnHandleResult CHttpServerEngine::OnAccept(ITcpServer* pSender, CONNID dwConnID, UINT_PTR soClient)
 {
 	BOOL bPass = TRUE;
 	TCHAR szAddress[50];
@@ -25,24 +25,24 @@ EnHandleResult CHttpServerListenerImpl::OnAccept(ITcpServer* pSender, CONNID dwC
 	return bPass ? HR_OK : HR_ERROR;
 }
 
-EnHandleResult CHttpServerListenerImpl::OnHandShake(ITcpServer* pSender, CONNID dwConnID)
+EnHandleResult CHttpServerEngine::OnHandShake(ITcpServer* pSender, CONNID dwConnID)
 {
 	return HR_OK;
 }
 
-EnHandleResult CHttpServerListenerImpl::OnReceive(ITcpServer* pSender, CONNID dwConnID, const BYTE* pData, int iLength)
+EnHandleResult CHttpServerEngine::OnReceive(ITcpServer* pSender, CONNID dwConnID, const BYTE* pData, int iLength)
 {
 	std::cout<< "receive data: " << pData << std::endl;
 
 	 return HR_OK;
 }
 
-EnHandleResult CHttpServerListenerImpl::OnSend(ITcpServer* pSender, CONNID dwConnID, const BYTE* pData, int iLength)
+EnHandleResult CHttpServerEngine::OnSend(ITcpServer* pSender, CONNID dwConnID, const BYTE* pData, int iLength)
 {
 	return HR_OK;
 }
 
-EnHandleResult CHttpServerListenerImpl::OnClose(ITcpServer* pSender, CONNID dwConnID, EnSocketOperation enOperation, int iErrorCode)
+EnHandleResult CHttpServerEngine::OnClose(ITcpServer* pSender, CONNID dwConnID, EnSocketOperation enOperation, int iErrorCode)
 {
 /*
  *
@@ -58,14 +58,14 @@ EnHandleResult CHttpServerListenerImpl::OnClose(ITcpServer* pSender, CONNID dwCo
 	return HR_OK;
 }
 
-EnHandleResult CHttpServerListenerImpl::OnShutdown(ITcpServer* pSender)
+EnHandleResult CHttpServerEngine::OnShutdown(ITcpServer* pSender)
 {
 	return HR_OK;
 }
 
 // ------------------------------------------------------------------------------------------------------------- //
 
-EnHttpParseResult CHttpServerListenerImpl::OnMessageBegin(IHttpServer* pSender, CONNID dwConnID)
+EnHttpParseResult CHttpServerEngine::OnMessageBegin(IHttpServer* pSender, CONNID dwConnID)
 {
 	std::cout<< "on message begin" << std::endl;
 	//std::cout<< m_strName << std::endl;
@@ -77,21 +77,21 @@ EnHttpParseResult CHttpServerListenerImpl::OnMessageBegin(IHttpServer* pSender, 
 	return HPR_OK;
 }
 
-EnHttpParseResult CHttpServerListenerImpl::OnRequestLine(IHttpServer* pSender, CONNID dwConnID, LPCSTR lpszMethod, LPCSTR lpszUrl)
+EnHttpParseResult CHttpServerEngine::OnRequestLine(IHttpServer* pSender, CONNID dwConnID, LPCSTR lpszMethod, LPCSTR lpszUrl)
 {
 	//std::cout<< "on request line " << std::endl;
 	std::cout<< lpszMethod << ":" << lpszUrl << std::endl;
 	return HPR_OK;
 }
 
-EnHttpParseResult CHttpServerListenerImpl::OnHeader(IHttpServer* pSender, CONNID dwConnID, LPCSTR lpszName, LPCSTR lpszValue)
+EnHttpParseResult CHttpServerEngine::OnHeader(IHttpServer* pSender, CONNID dwConnID, LPCSTR lpszName, LPCSTR lpszValue)
 {
 	//std::cout<< "on header" << std::endl;
 	std::cout<< lpszName << ":" << lpszValue << std::endl;
 	return HPR_OK;
 }
 
-EnHttpParseResult CHttpServerListenerImpl::OnHeadersComplete(IHttpServer* pSender, CONNID dwConnID)
+EnHttpParseResult CHttpServerEngine::OnHeadersComplete(IHttpServer* pSender, CONNID dwConnID)
 {
 	/*
 	 *CStringA strSummary = GetHeaderSummary(pSender, dwConnID, "    ", 0, TRUE);
@@ -101,7 +101,7 @@ EnHttpParseResult CHttpServerListenerImpl::OnHeadersComplete(IHttpServer* pSende
 	return HPR_OK;
 }
 
-EnHttpParseResult CHttpServerListenerImpl::OnBody(IHttpServer* pSender, CONNID dwConnID, const BYTE* pData, int iLength)
+EnHttpParseResult CHttpServerEngine::OnBody(IHttpServer* pSender, CONNID dwConnID, const BYTE* pData, int iLength)
 {
 	std::cout<< "on body" << std::endl;
 	//pSender->SetConnectionExtra(dwConnID, PVOID(pData));
@@ -114,17 +114,17 @@ EnHttpParseResult CHttpServerListenerImpl::OnBody(IHttpServer* pSender, CONNID d
 	return HPR_OK;
 }
 
-EnHttpParseResult CHttpServerListenerImpl::OnChunkHeader(IHttpServer* pSender, CONNID dwConnID, int iLength)
+EnHttpParseResult CHttpServerEngine::OnChunkHeader(IHttpServer* pSender, CONNID dwConnID, int iLength)
 {
 	return HPR_OK;
 }
 
-EnHttpParseResult CHttpServerListenerImpl::OnChunkComplete(IHttpServer* pSender, CONNID dwConnID)
+EnHttpParseResult CHttpServerEngine::OnChunkComplete(IHttpServer* pSender, CONNID dwConnID)
 {
 	return HPR_OK;
 }
 
-EnHttpParseResult CHttpServerListenerImpl::OnMessageComplete(IHttpServer* pSender, CONNID dwConnID)
+EnHttpParseResult CHttpServerEngine::OnMessageComplete(IHttpServer* pSender, CONNID dwConnID)
 {
 	std::cout<< "on message complete : " << dwConnID << std::endl;
 
@@ -140,34 +140,34 @@ EnHttpParseResult CHttpServerListenerImpl::OnMessageComplete(IHttpServer* pSende
 	return HPR_OK;
 }
 
-EnHttpParseResult CHttpServerListenerImpl::OnUpgrade(IHttpServer* pSender, CONNID dwConnID, EnHttpUpgradeType enUpgradeType)
+EnHttpParseResult CHttpServerEngine::OnUpgrade(IHttpServer* pSender, CONNID dwConnID, EnHttpUpgradeType enUpgradeType)
 {
 	return HPR_OK;
 }
 
-EnHttpParseResult CHttpServerListenerImpl::OnParseError(IHttpServer* pSender, CONNID dwConnID, int iErrorCode, LPCSTR lpszErrorDesc)
+EnHttpParseResult CHttpServerEngine::OnParseError(IHttpServer* pSender, CONNID dwConnID, int iErrorCode, LPCSTR lpszErrorDesc)
 {
 	std::cout<< "on parse error" << std::endl;
 	return HPR_OK;
 }
 
-EnHandleResult CHttpServerListenerImpl::OnWSMessageHeader(IHttpServer* pSender, CONNID dwConnID, BOOL bFinal, BYTE iReserved, BYTE iOperationCode, const BYTE lpszMask[4], ULONGLONG ullBodyLen)
+EnHandleResult CHttpServerEngine::OnWSMessageHeader(IHttpServer* pSender, CONNID dwConnID, BOOL bFinal, BYTE iReserved, BYTE iOperationCode, const BYTE lpszMask[4], ULONGLONG ullBodyLen)
 {
 
 	return HR_OK;
 }
 
-EnHandleResult CHttpServerListenerImpl::OnWSMessageBody(IHttpServer* pSender, CONNID dwConnID, const BYTE* pData, int iLength)
+EnHandleResult CHttpServerEngine::OnWSMessageBody(IHttpServer* pSender, CONNID dwConnID, const BYTE* pData, int iLength)
 {
 	return HR_OK;
 }
 
-EnHandleResult CHttpServerListenerImpl::OnWSMessageComplete(IHttpServer* pSender, CONNID dwConnID)
+EnHandleResult CHttpServerEngine::OnWSMessageComplete(IHttpServer* pSender, CONNID dwConnID)
 {
 	return HR_OK;
 }
 
-EnHttpParseResult CHttpServerListenerImpl::HttpHandle(IHttpServer* pSender, CONNID dwConnID, std::string& content){
+EnHttpParseResult CHttpServerEngine::HttpHandle(IHttpServer* pSender, CONNID dwConnID, std::string& content){
 	// http extra body;
 	/*
 	 *LPVOID pExBody = nullptr;
@@ -210,7 +210,7 @@ EnHttpParseResult CHttpServerListenerImpl::HttpHandle(IHttpServer* pSender, CONN
 	return HPR_OK;
 }
 
-bool CHttpServerListenerImpl::HttpHandleProcess(const std::string& sBody, std::string& sResponse) {
+bool CHttpServerEngine::HttpHandleProcess(const std::string& sBody, std::string& sResponse) {
 	bool res = false;
 
 	// parse content json body
@@ -255,7 +255,7 @@ bool CHttpServerListenerImpl::HttpHandleProcess(const std::string& sBody, std::s
 	return res;
 }
 
-void CHttpServerListenerImpl::Init() {
+void CHttpServerEngine::Init() {
 	// set http handle thread pool
 	m_handleTHPool.Start();
 }

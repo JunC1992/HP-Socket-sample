@@ -14,7 +14,7 @@
 
 #include "../HttpHandle/HttpHandle.h"
 
-class CHttpServerListenerImpl : public CHttpServerListener
+class CHttpServerEngine: public CHttpServerListener
 {
 private:
 	virtual EnHandleResult OnPrepareListen(ITcpServer* pSender, SOCKET soListen);
@@ -49,7 +49,7 @@ private:
 	bool HttpHandleProcess (const std::string& sBody, std::string& sResponse);
 
 public:
-	CHttpServerListenerImpl(LPCTSTR lpszName): m_strName(lpszName){}
+	CHttpServerEngine(LPCTSTR lpszName): m_strName(lpszName){}
 	// http server engine init
 	void Init();
 

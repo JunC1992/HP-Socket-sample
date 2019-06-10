@@ -1,4 +1,5 @@
 #pragma once
+
 #include <iostream>
 #include <hpsocket/HPSocket.h>
 
@@ -13,7 +14,7 @@ class CTcpServerDaemon {
 
 public:
 	CTcpServerDaemon():CTcpServerDaemon(DEFAULT_TCP_IP, DEFAULT_TCP_PORT){};
-	CTcpServerDaemon(const char* ip, const int port): m_ip(ip), m_port(port){};
+	CTcpServerDaemon(const char* ip, const int port);
 	~CTcpServerDaemon()=default;
 
 public:
@@ -35,4 +36,8 @@ public:
 private:
 	const char* m_ip;
 	const int m_port;
+
+	// tcp engine & server ptr;
+	std::shared_ptr<CTcpServerEngine> m_engine;
+	std::shared_ptr<CTcpPullServerPtr> m_server;
 };
