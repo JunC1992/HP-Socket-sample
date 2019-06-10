@@ -1,5 +1,5 @@
 CC=g++
-LIBS=-lhpsocket -lpthread
+LIBS=-lhpsocket -lpthread -ljsoncpp
 CPPS= test.cpp \
       ./WSClientEngine.cpp \
       ./WSClient.cpp

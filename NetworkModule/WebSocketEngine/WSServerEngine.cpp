@@ -4,7 +4,7 @@
 const char* const G_MSGHEADER = "<HX>";
 const char* const G_MSGEND = "<END>";
 
-EnHandleResult CWSServerListenerImpl::OnPrepareListen(ITcpServer* pSender, SOCKET soListen)
+EnHandleResult CWSServerEngine::OnPrepareListen(ITcpServer* pSender, SOCKET soListen)
 {
 	TCHAR szAddress[50];
 	int iAddressLen = sizeof(szAddress) / sizeof(TCHAR);
@@ -16,7 +16,7 @@ EnHandleResult CWSServerListenerImpl::OnPrepareListen(ITcpServer* pSender, SOCKE
 	return HR_OK;
 }
 
-EnHandleResult CWSServerListenerImpl::OnAccept(ITcpServer* pSender, CONNID dwConnID, UINT_PTR soClient)
+EnHandleResult CWSServerEngine::OnAccept(ITcpServer* pSender, CONNID dwConnID, UINT_PTR soClient)
 {
 	BOOL bPass = TRUE;
 	TCHAR szAddress[50];
@@ -29,23 +29,23 @@ EnHandleResult CWSServerListenerImpl::OnAccept(ITcpServer* pSender, CONNID dwCon
 	return bPass ? HR_OK : HR_ERROR;
 }
 
-EnHandleResult CWSServerListenerImpl::OnHandShake(ITcpServer* pSender, CONNID dwConnID)
+EnHandleResult CWSServerEngine::OnHandShake(ITcpServer* pSender, CONNID dwConnID)
 {
 	return HR_OK;
 }
 
-EnHandleResult CWSServerListenerImpl::OnReceive(ITcpServer* pSender, CONNID dwConnID, const BYTE* pData, int iLength)
+EnHandleResult CWSServerEngine::OnReceive(ITcpServer* pSender, CONNID dwConnID, const BYTE* pData, int iLength)
 {
 	std::cout<< "receive data: " << pData << std::endl;
 	return HR_OK;
 }
 
-EnHandleResult CWSServerListenerImpl::OnSend(ITcpServer* pSender, CONNID dwConnID, const BYTE* pData, int iLength)
+EnHandleResult CWSServerEngine::OnSend(ITcpServer* pSender, CONNID dwConnID, const BYTE* pData, int iLength)
 {
 	return HR_OK;
 }
 
-EnHandleResult CWSServerListenerImpl::OnClose(ITcpServer* pSender, CONNID dwConnID, EnSocketOperation enOperation, int iErrorCode)
+EnHandleResult CWSServerEngine::OnClose(ITcpServer* pSender, CONNID dwConnID, EnSocketOperation enOperation, int iErrorCode)
 {
 	std::cout << dwConnID << "on close" << std::endl;
 	m_bodyData.erase(dwConnID);
@@ -54,14 +54,14 @@ EnHandleResult CWSServerListenerImpl::OnClose(ITcpServer* pSender, CONNID dwConn
 	return HR_OK;
 }
 
-EnHandleResult CWSServerListenerImpl::OnShutdown(ITcpServer* pSender)
+EnHandleResult CWSServerEngine::OnShutdown(ITcpServer* pSender)
 {
 	return HR_OK;
 }
 
 // ------------------------------------------------------------------------------------------------------------- //
 
-EnHttpParseResult CWSServerListenerImpl::OnMessageBegin(IHttpServer* pSender, CONNID dwConnID)
+EnHttpParseResult CWSServerEngine::OnMessageBegin(IHttpServer* pSender, CONNID dwConnID)
 {
 	std::cout<< "on message begin" << std::endl;
 	m_bodyData.insert(std::make_pair(dwConnID, ""));
@@ -69,21 +69,21 @@ EnHttpParseResult CWSServerListenerImpl::OnMessageBegin(IHttpServer* pSender, CO
 	return HPR_OK;
 }
 
-EnHttpParseResult CWSServerListenerImpl::OnRequestLine(IHttpServer* pSender, CONNID dwConnID, LPCSTR lpszMethod, LPCSTR lpszUrl)
+EnHttpParseResult CWSServerEngine::OnRequestLine(IHttpServer* pSender, CONNID dwConnID, LPCSTR lpszMethod, LPCSTR lpszUrl)
 {
 	//std::cout<< "on request line " << std::endl;
 	std::cout<< lpszMethod << ":" << lpszUrl << std::endl;
 	return HPR_OK;
 }
 
-EnHttpParseResult CWSServerListenerImpl::OnHeader(IHttpServer* pSender, CONNID dwConnID, LPCSTR lpszName, LPCSTR lpszValue)
+EnHttpParseResult CWSServerEngine::OnHeader(IHttpServer* pSender, CONNID dwConnID, LPCSTR lpszName, LPCSTR lpszValue)
 {
 	//std::cout<< "on header" << std::endl;
 	std::cout<< lpszName << ":" << lpszValue << std::endl;
 	return HPR_OK;
 }
 
-EnHttpParseResult CWSServerListenerImpl::OnHeadersComplete(IHttpServer* pSender, CONNID dwConnID)
+EnHttpParseResult CWSServerEngine::OnHeadersComplete(IHttpServer* pSender, CONNID dwConnID)
 {
 	/*
 	 *CStringA strSummary = GetHeaderSummary(pSender, dwConnID, "    ", 0, TRUE);
@@ -93,7 +93,7 @@ EnHttpParseResult CWSServerListenerImpl::OnHeadersComplete(IHttpServer* pSender,
 	return HPR_OK;
 }
 
-EnHttpParseResult CWSServerListenerImpl::OnBody(IHttpServer* pSender, CONNID dwConnID, const BYTE* pData, int iLength)
+EnHttpParseResult CWSServerEngine::OnBody(IHttpServer* pSender, CONNID dwConnID, const BYTE* pData, int iLength)
 {
 	std::cout<< "on body" << std::endl;
 	//m_bodyData[dwConnID] += (char*) pData;
@@ -101,23 +101,23 @@ EnHttpParseResult CWSServerListenerImpl::OnBody(IHttpServer* pSender, CONNID dwC
 	return HPR_OK;
 }
 
-EnHttpParseResult CWSServerListenerImpl::OnChunkHeader(IHttpServer* pSender, CONNID dwConnID, int iLength)
+EnHttpParseResult CWSServerEngine::OnChunkHeader(IHttpServer* pSender, CONNID dwConnID, int iLength)
 {
 	return HPR_OK;
 }
 
-EnHttpParseResult CWSServerListenerImpl::OnChunkComplete(IHttpServer* pSender, CONNID dwConnID)
+EnHttpParseResult CWSServerEngine::OnChunkComplete(IHttpServer* pSender, CONNID dwConnID)
 {
 	return HPR_OK;
 }
 
-EnHttpParseResult CWSServerListenerImpl::OnMessageComplete(IHttpServer* pSender, CONNID dwConnID)
+EnHttpParseResult CWSServerEngine::OnMessageComplete(IHttpServer* pSender, CONNID dwConnID)
 {
 	std::cout<< "on message complete : " << dwConnID << std::endl;
 	return HPR_OK;
 }
 
-EnHttpParseResult CWSServerListenerImpl::OnUpgrade(IHttpServer* pSender, CONNID dwConnID, EnHttpUpgradeType enUpgradeType)
+EnHttpParseResult CWSServerEngine::OnUpgrade(IHttpServer* pSender, CONNID dwConnID, EnHttpUpgradeType enUpgradeType)
 {
 
 	if(enUpgradeType != HUT_WEB_SOCKET) {
@@ -142,18 +142,18 @@ EnHttpParseResult CWSServerListenerImpl::OnUpgrade(IHttpServer* pSender, CONNID 
 	return HPR_OK;
 }
 
-EnHttpParseResult CWSServerListenerImpl::OnParseError(IHttpServer* pSender, CONNID dwConnID, int iErrorCode, LPCSTR lpszErrorDesc)
+EnHttpParseResult CWSServerEngine::OnParseError(IHttpServer* pSender, CONNID dwConnID, int iErrorCode, LPCSTR lpszErrorDesc)
 {
 	return HPR_OK;
 }
 
-EnHandleResult CWSServerListenerImpl::OnWSMessageHeader(IHttpServer* pSender, CONNID dwConnID, BOOL bFinal, BYTE iReserved, BYTE iOperationCode, const BYTE lpszMask[4], ULONGLONG ullBodyLen)
+EnHandleResult CWSServerEngine::OnWSMessageHeader(IHttpServer* pSender, CONNID dwConnID, BOOL bFinal, BYTE iReserved, BYTE iOperationCode, const BYTE lpszMask[4], ULONGLONG ullBodyLen)
 {
 
 	return HR_OK;
 }
 
-EnHandleResult CWSServerListenerImpl::OnWSMessageBody(IHttpServer* pSender, CONNID dwConnID, const BYTE* pData, int iLength)
+EnHandleResult CWSServerEngine::OnWSMessageBody(IHttpServer* pSender, CONNID dwConnID, const BYTE* pData, int iLength)
 {
 	std::string body(pData, pData + iLength);
 	std::cout << "ws message body: " << body << std::endl;
@@ -161,13 +161,13 @@ EnHandleResult CWSServerListenerImpl::OnWSMessageBody(IHttpServer* pSender, CONN
 	return HR_OK;
 }
 
-EnHandleResult CWSServerListenerImpl::OnWSMessageComplete(IHttpServer* pSender, CONNID dwConnID) {
+EnHandleResult CWSServerEngine::OnWSMessageComplete(IHttpServer* pSender, CONNID dwConnID) {
 	HttpHandle(pSender, dwConnID);
 
 	return HR_OK;
 }
 
-EnHandleResult CWSServerListenerImpl::HttpHandle(IHttpServer* pSender, CONNID dwConnID){
+EnHandleResult CWSServerEngine::HttpHandle(IHttpServer* pSender, CONNID dwConnID){
         BOOL bFinal;
         BYTE iReserved, iOperationCode;
 	// check current ws state
@@ -208,7 +208,7 @@ EnHandleResult CWSServerListenerImpl::HttpHandle(IHttpServer* pSender, CONNID dw
 	return HR_OK;
 }
 
-bool CWSServerListenerImpl::HttpHandleProcess(const std::string& content, std::string& response) {
+bool CWSServerEngine::HttpHandleProcess(const std::string& content, std::string& response) {
 	// parse content json body
 	Json::Reader reader;
 	Json::Value rootValue;
@@ -239,12 +239,12 @@ bool CWSServerListenerImpl::HttpHandleProcess(const std::string& content, std::s
 	return res;
 }
 
-void CWSServerListenerImpl::Init() {
+void CWSServerEngine::Init() {
 	// set http handle thread pool
 	m_handleTHPool.Start();
 }
 
-std::vector<std::string> CWSServerListenerImpl::Parser(const CONNID dwConnID, const std::string &content){
+std::vector<std::string> CWSServerEngine::Parser(const CONNID dwConnID, const std::string &content){
 	// unpack content
 	// trim the package flag, <HX>&&<END>
 	auto allMsgStr = m_remain[dwConnID] + content;

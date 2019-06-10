@@ -17,7 +17,7 @@
 #define UPGRADE_HEADER			"Upgrade"
 #define WEB_SOCKET_HEADER_VALUE		"WebSocket"
 
-class CWSServerListenerImpl : public CHttpServerListener
+class CWSServerEngine: public CHttpServerListener
 {
 private:
 	virtual EnHandleResult OnPrepareListen(ITcpServer* pSender, SOCKET soListen);
@@ -54,7 +54,7 @@ private:
 	std::vector<std::string> Parser(const CONNID dwConnID, const std::string &content);
 
 public:
-	CWSServerListenerImpl(LPCTSTR lpszName): m_strName(lpszName){}
+	CWSServerEngine(LPCTSTR lpszName): m_strName(lpszName){}
 	// http server engine init
 	void Init();
 

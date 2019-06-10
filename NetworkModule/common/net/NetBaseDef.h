@@ -19,6 +19,8 @@ using TCP_HANDLE = std::function<void(const std::string&, std::string&)>;
 using TCP_HANDLE_MAP = std::map<int, TCP_HANDLE>;
 
 // http define
+#define HTTP_NAME "http"
+
 using HTTP_HANDLE = std::function<void(const std::string&, std::string&)>;
 using HTTP_HANDLE_MAP = std::map<int, HTTP_HANDLE>;
 

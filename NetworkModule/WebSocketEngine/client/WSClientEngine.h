@@ -6,9 +6,7 @@
 #include <hpsocket/HPSocket.h> 
 #include <hpsocket/HPSocket-SSL.h> 
 #include <hpsocket/common/GlobalDef.h> 
-
-#define HTTP_NAME "http"
-#define HTTPS_NAME "https"
+#include <jsoncpp/json/json.h>
 
 const BYTE HTTP_WEB_SOCKET_MASK_KEY[]	= {0x1, 0x2, 0x3, 0x4};
 

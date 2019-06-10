@@ -1,13 +1,17 @@
 #pragma once
 
+#include <memory>
+#include <jsoncpp/json/json.h>
+
 #include "WSClientEngine.h"
+#include "../../common/net/NetBaseDef.h"
 
 #define UPGRADE_HEADER                  "Upgrade"
 #define WEB_SOCKET_HEADER_VALUE         "WebSocket"
 
 class CWSClient {
 public:
-	CWSClient(const char* ip, const int port):m_serverIp(ip), m_serverPort(port){};
+	CWSClient(const char* ip, const int port);
 	~CWSClient()=default;
 
 public:
@@ -40,12 +44,15 @@ public:
 		return m_isConnected;
 	}
 
-	void SendWebSocket(const std::string& content);
+	bool SendWebSocket(const std::string& content);
 
 private:
-	void handle();
-
+	// init
+	void init();
+	// upgrade http to ws
 	bool upgradeProtocal();
+	// request quotation
+	bool requestQuotation();
 
 private:
 	//IWSClientApi* m_pApi;
@@ -63,4 +70,9 @@ private:
 	const char* m_serverIp;
 	// ws server party port
 	const int m_serverPort;
+
+	// ws engine & client ptr;
+	std::shared_ptr<CWSClientEngine> m_engine;
+	std::shared_ptr<CHttpClientPtr> m_pClient;
+
 };

@@ -1,9 +1,12 @@
 #include "WSServer.h"
 
-#define HTTP_NAME "http"
-
-CWSServerListenerImpl g_WSEngine(HTTP_NAME);
+CWSServerEngine g_WSEngine(HTTP_NAME);
 CHttpServerPtr g_HttpServer(&g_WSEngine);
+
+CWSServerDaemon::CWSServerDaemon(const char* ip, const int port):m_ip(ip), m_port(port){
+	m_engine = std::make_shared<CWSServerEngine>(HTTP_NAME);
+	m_server = std::make_shared<CHttpServerPtr>(m_engine.get());
+};
 
 bool CWSServerDaemon::Init(){
 	// TODO

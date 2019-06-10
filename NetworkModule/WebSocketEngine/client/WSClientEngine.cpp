@@ -53,12 +53,12 @@ EnHttpParseResult CWSClientEngine::OnHeader(IHttpClient* pSender, CONNID dwConnI
 
 EnHttpParseResult CWSClientEngine::OnHeadersComplete(IHttpClient* pSender, CONNID dwConnID)
 {
-	std::cout<< "header complete" << std::endl;
 	return HPR_OK;
 }
 
 EnHttpParseResult CWSClientEngine::OnBody(IHttpClient* pSender, CONNID dwConnID, const BYTE* pData, int iLength)
 {
+	std::cout<< "http body: " << pData << std::endl;
 	return HPR_OK;
 }
 
@@ -100,7 +100,7 @@ EnHandleResult CWSClientEngine::OnWSMessageBody(IHttpClient* pSender, CONNID dwC
 {
 	std::string body(pData, pData + iLength);
 	m_bodyData += body;
-	std::cout << "ws message body: " << m_bodyData << std::endl;
+	//std::cout << "ws message body: " << m_bodyData << std::endl;
 	//std::cout << "ws message body: " << body << std::endl;
 
 	return HR_OK;
@@ -129,15 +129,22 @@ void CWSClientEngine::handle(const std::string& content){
 	// handle ws server pong
 	if (content == "pong") {
 		m_heartBeatFiled = 0;
+		std::cout << "pong" << std::endl;
 		return;
 	}
 
+	Json::Reader reader;
+	Json::Value rootValue;
+	if (!reader.parse(content, rootValue)) {
+		return;
+	}
+	std::cout<< content << std::endl;
 	// TODO
 	// handle quotation
 }
 
 bool CWSClientEngine::PongWatcher(){
-	// handle ws server pong
+	// watch ws server pong
 	if (m_heartBeatFiled >= 5) {
 		return false;
 	}

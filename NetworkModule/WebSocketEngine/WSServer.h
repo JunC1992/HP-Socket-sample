@@ -1,6 +1,7 @@
 #pragma once
 
 #include "WSServerEngine.h"
+#include "../common/net/NetBaseDef.h"
 
 // default serv_ip & serv_port
 #define DEFAULT_HTTP_IP "127.0.0.1"
@@ -10,7 +11,7 @@ class CWSServerDaemon{
 
 public:
 	CWSServerDaemon():CWSServerDaemon(DEFAULT_HTTP_IP, DEFAULT_HTTP_PORT){};
-	CWSServerDaemon(const char* ip, const int port):m_ip(ip), m_port(port){};
+	CWSServerDaemon(const char* ip, const int port);
 	~CWSServerDaemon()=default;
 
 public:
@@ -26,4 +27,8 @@ public:
 private:
 	const char* m_ip;
 	const int m_port;
+
+	// ws engine & client ptr;
+	std::shared_ptr<CWSServerEngine> m_engine;
+	std::shared_ptr<CHttpServerPtr> m_server;
 };

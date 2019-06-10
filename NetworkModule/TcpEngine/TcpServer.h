@@ -19,6 +19,7 @@ public:
 public:
 	// init tcp daemon
 	bool Init(int threads);
+
 	// start tcp server daemon
 	bool Start();
 
