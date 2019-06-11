@@ -192,14 +192,14 @@ EnHandleResult CWSServerEngine::HttpHandle(IHttpServer* pSender, CONNID dwConnID
 	auto vec = Parser(dwConnID, body);
 	std::cout << "cmd: " << vec.size() << std::endl;
 	for (auto v : vec) {
-		m_handleTHPool.AddTask([=]{
+		//m_handleTHPool.AddTask([=]{
 			std::string resp;
 			HttpHandleProcess(v, resp);
 			// 0x1: websocket send TEXT frame
 			BYTE optCode = 0x1;
 			pSender->SendWSMessage(dwConnID, bFinal, iReserved, optCode, nullptr, (BYTE*)resp.data(), resp.length());
 			std::cout << "resp: " << resp << std::endl;
-		});
+		//});
 
 	}
 	// reset ws body buffer

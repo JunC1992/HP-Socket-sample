@@ -5,7 +5,7 @@ CPPS=./WSServerEngine.cpp \
      ../WebSocketHandle/WSHandle.cpp \
      ../WebSocketHandle/EchoHandle/echoHandle.cpp \
      test.cpp
-#OPTI= -O2
+OPTI= -O2
 
 TARGET=wsserv
 

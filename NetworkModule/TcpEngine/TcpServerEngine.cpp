@@ -116,9 +116,9 @@ void CTcpServerEngine::Handle(ITcpServer* pSender, const CONNID dwConnID, const 
 
 	for(auto v : vec) {
 		// push response into sys_mq
-		m_handleTHPool.AddTask([=]{
+		//m_handleTHPool.AddTask([=]{
 			HandleProcess(pSender, dwConnID, v);
-		});
+		//});
 	}
 }
 

@@ -28,7 +28,7 @@ private:
 	const char* m_ip;
 	const int m_port;
 
-	// ws engine & client ptr;
+	// ws engine & server ptr;
 	std::shared_ptr<CWSServerEngine> m_engine;
 	std::shared_ptr<CHttpServerPtr> m_server;
 };

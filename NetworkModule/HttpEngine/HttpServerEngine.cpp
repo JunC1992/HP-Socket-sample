@@ -130,9 +130,9 @@ EnHttpParseResult CHttpServerEngine::OnMessageComplete(IHttpServer* pSender, CON
 
 	// get body content
 	std::string content = std::move(m_bodyData[dwConnID]);
-	m_handleTHPool.AddTask([&]{
+	//m_handleTHPool.AddTask([&]{
 		HttpHandle(pSender, dwConnID, content);
-	});
+	//});
 
 	// reset body buffer
 	m_bodyData[dwConnID] = "";
@@ -196,6 +196,7 @@ EnHttpParseResult CHttpServerEngine::HttpHandle(IHttpServer* pSender, CONNID dwC
 		 */
 	}
 
+	try {
 	pSender->SendResponse(dwConnID, 
 			reCode, reStatus.data(),
 			header, iHeaderCount,
@@ -203,6 +204,7 @@ EnHttpParseResult CHttpServerEngine::HttpHandle(IHttpServer* pSender, CONNID dwC
 			(const BYTE*)resp.data(),
 			resp.length()
 			);
+	} catch (std::exception&){}
 
         if(!pSender->IsKeepAlive(dwConnID))
 		pSender->Release(dwConnID);
@@ -217,6 +219,11 @@ bool CHttpServerEngine::HttpHandleProcess(const std::string& sBody, std::string&
 	try{
 		Json::Reader reader;
 		Json::Value rootValue;
+
+		if (sBody.empty()) {
+			sResponse = "EMPTY_HTTP_BODY";
+			return false;
+		}
 		if (!reader.parse(sBody, rootValue)) {
 			sResponse = "ERROR_HTTP_BODY";
 			return false;
