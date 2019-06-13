@@ -6,10 +6,10 @@
 #include "../../common/net/NetBaseDef.h"
 #include "../../common/net/NetCommandCode.h"
 
-class CEchoHttpHandle{
+class CEchoWSHandle{
 public:
-	CEchoHttpHandle()=default;
-	~CEchoHttpHandle()=default;
+	CEchoWSHandle()=default;
+	~CEchoWSHandle()=default;
 public:
 	void registedHttpHandle(WS_HANDLE_MAP& handleMap);
 
@@ -18,4 +18,4 @@ public:
 	void HandleDetail();
 };
 
-typedef std::shared_ptr<CEchoHttpHandle> CEchoHttpHandlePtr;
+typedef std::shared_ptr<CEchoWSHandle> CEchoWSHandlePtr;

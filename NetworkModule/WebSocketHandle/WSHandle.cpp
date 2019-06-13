@@ -1,7 +1,7 @@
 #include "WSHandle.h"
 
 void CWSHandler::SetHttpHandle(){
-	CEchoHttpHandle ce;
+	CEchoWSHandle ce;
 	ce.registedHttpHandle(ms_handles);
 }
 

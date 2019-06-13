@@ -1,11 +1,11 @@
 #include "echoHandle.h"
 
-bool CEchoHttpHandle::Handle(const std::string& content, std::string& response){
+bool CEchoWSHandle::Handle(const std::string& content, std::string& response){
 	response = "ECHO_HELLO_WORLD";
 	return true;
 }
 
-void CEchoHttpHandle::registedHttpHandle(WS_HANDLE_MAP& handleMap) {
+void CEchoWSHandle::registedHttpHandle(WS_HANDLE_MAP& handleMap) {
 	// registed ECHO_TEST
-	handleMap[ECHO_TEST] = std::bind(&CEchoHttpHandle::Handle, this, _1, _2);
+	handleMap[ECHO_TEST] = std::bind(&CEchoWSHandle::Handle, this, _1, _2);
 }
