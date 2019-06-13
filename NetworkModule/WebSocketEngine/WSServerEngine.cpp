@@ -131,9 +131,6 @@ EnHttpParseResult CWSServerEngine::OnUpgrade(IHttpServer* pSender, CONNID dwConn
 		{nullptr, nullptr},
 		{nullptr, nullptr}};
 
-
-	LPCSTR lpszAccept = nullptr;
-
 	//TODO
 	// add "Sec-WebSocket-Protocol" auth
 	//

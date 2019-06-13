@@ -9,7 +9,7 @@ $(TARGET) : $(OBJS)
 	$(CXX) -shared -o $(TARGET) $^ $(CFLAGS)
 
 %.o : %.cpp
-	$(CXX) -fPIC -c $< -o $@ -g
+	$(CXX) -fPIC -c $< -o $@ $(CFLAGS)
 
 clean:
 	rm $(TARGET) $(OBJS) -rf

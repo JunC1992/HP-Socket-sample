@@ -89,7 +89,7 @@ public:
 private:
 	bool NotFull()const
 	{
-		bool full = m_queue.size() >= m_maxSize;
+		bool full = m_queue.size() >= (unsigned)m_maxSize;
 		if (full)
 		{
 			//cout << "缓冲区满了,需要等待。。。 当前任务数量:" << m_queue.size() << endl;
