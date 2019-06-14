@@ -13,6 +13,7 @@ public:
 		  , m_level(-1)
 		  , m_source(0)
 		  , m_sender(nullptr)
+		  , m_connID(0)
 	{}
 
 	~Session()=default;
@@ -139,6 +140,10 @@ public:
 		return m_mac;
 	}
 
+	inline void SetWSSender(IHttpServer* pServ, CONNID dwConnID) {
+		m_sender = pServ;
+		m_connID = dwConnID;
+	}
 private:
 	// ip
 	std::string m_ip;
