@@ -18,8 +18,9 @@
 #else
 //# error("包含Linux下的读写锁相关定义")  
 #include "cmutex.h"
-  typedef Mutex rwMutex;
-  typedef scoped_lock writeLock;
+  typedef CMutex rwMutex;
+  typedef CScopedLock readLock;
+  typedef CScopedLock writeLock;
 #endif
 
 #endif 

@@ -4,7 +4,7 @@ CPPS=./HttpServerEngine.cpp \
      ./HttpServer.cpp \
      ../HttpHandle/HttpHandle.cpp \
      ../HttpHandle/EchoHandle/echoHandle.cpp \
-     test.cpp
+     test.cxx
 OPTI= -O2
 
 TARGET=httpserv

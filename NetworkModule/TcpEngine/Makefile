@@ -6,7 +6,7 @@ ALL_CPPS= ./TcpServer.cpp \
 	  ./TcpServerEngine.cpp \
 	  ../TcpHandle/TcpHandle.cpp \
 	  ../TcpHandle/EchoHandle/echoHandle.cpp \
-	  ./test.cpp
+	  ./test.cxx
 
 TARGET=serv
 

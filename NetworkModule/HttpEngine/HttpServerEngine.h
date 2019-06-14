@@ -14,8 +14,7 @@
 
 #include "../HttpHandle/HttpHandle.h"
 
-class CHttpServerEngine: public CHttpServerListener
-{
+class CHttpServerEngine: public CHttpServerListener {
 private:
 	virtual EnHandleResult OnPrepareListen(ITcpServer* pSender, SOCKET soListen);
 	virtual EnHandleResult OnAccept(ITcpServer* pSender, CONNID dwConnID, UINT_PTR soClient);
