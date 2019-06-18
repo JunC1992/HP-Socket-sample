@@ -19,6 +19,9 @@ public:
 	~Session()=default;
 	
 public:
+	// sesison init
+	int Init(const std::string& ip, unsigned short port);
+
 	// send ws response
 	void Write(const std::string& content);
 

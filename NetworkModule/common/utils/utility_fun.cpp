@@ -1,10 +1,11 @@
-﻿#include <boost\uuid\uuid.hpp>
-#include <boost\uuid\uuid_io.hpp>
-#include <boost\uuid\random_generator.hpp>  // for  boost::uuids
-#include<sstream>
-#include "utility_fun.h"
+﻿#include <sstream>
+#include <limits>
+#include <cmath>
+#include <uuid/uuid.h>
+#include <unistd.h>
 #include <time.h>
-#include <windows.h>
+
+#include "utility_fun.h"
 
 namespace UtilityFun {
 
@@ -49,13 +50,33 @@ namespace UtilityFun {
 		return false;
 	}
 
-	void GetCurrentIntdateAndIntTime(int& date, int& time)
+	void GetCurrentIntdateAndIntTime(int& date, int& rtime)
 	{
-		SYSTEMTIME st = { 0 };
-		GetLocalTime(&st);
+/*
+ *                SYSTEMTIME st = { 0 };
+ *                GetLocalTime(&st);
+ *
+ *                date = st.wYear * 10000 + st.wMonth * 100 + st.wDay;
+ *                time = st.wHour * 10000 + st.wMinute * 100 + st.wSecond;
+ */
+		time_t t;
+		struct tm *st;
+		time(&t);
+		st = localtime(&t);
+                date = st->tm_year * 10000 + st->tm_mon* 100 + st->tm_mday;
+                rtime = st->tm_hour* 10000 + st->tm_min* 100 + st->tm_sec;
 
-		date = st.wYear * 10000 + st.wMonth * 100 + st.wDay;
-		time = st.wHour * 10000 + st.wMinute * 100 + st.wSecond;
+	}
+
+
+	bool isLeapYear(int year)
+	{
+		if ((year % 4 == 0 && year % 100 != 0) || (year % 400 == 0))
+		{
+			return true;
+		}
+
+		return false;
 	}
 
 	int GetDaysOfMonth(int nYear, int nMonth)
@@ -68,7 +89,7 @@ namespace UtilityFun {
 		if (nMonth == 2 && isLeapYear(nYear))
 			return 29;
 
-		static int month[12];
+		static int month[13];
 		month[1] = 31;
 		month[2] = 28;
 		month[3] = 31;
@@ -83,16 +104,6 @@ namespace UtilityFun {
 		month[12] = 31;
 
 		return month[nMonth];
-	}
-
-	bool isLeapYear(int year)
-	{
-		if ((year % 4 == 0 && year % 100 != 0) || (year % 400 == 0))
-		{
-			return true;
-		}
-
-		return false;
 	}
 
 	int GetDaysOfYear(int year)
@@ -329,11 +340,13 @@ namespace UtilityFun {
 	extern bool TodayIsWeekDayByForeign()
 	{
 		bool bFlag(false);
-		SYSTEMTIME st = { 0 };
-		GetLocalTime(&st);
+		time_t t;
+		struct tm *st;
+		time(&t);
+		st = localtime(&t);
 
 		//注：外盘不考虑周六
-		if (st.wDayOfWeek == 0 || st.wDayOfWeek == 6)
+		if (st->tm_wday == 0 || st->tm_wday == 6)
 			bFlag = true;
 
 		return bFlag;
@@ -342,14 +355,17 @@ namespace UtilityFun {
 	extern bool TodayIsWeekDayByForeignLimit(int tradetime)
 	{
 		bool bFlag(false);
-		SYSTEMTIME st = { 0 };
-		GetLocalTime(&st);
-		int  time(-1);
-		time = st.wHour * 10000 + st.wMinute * 100 + st.wSecond;
+		time_t t;
+		struct tm *st;
+		time(&t);
+		st = localtime(&t);
+
+		int  rtime(-1);
+                rtime = st->tm_hour* 10000 + st->tm_min* 100 + st->tm_sec;
 
 		//注：外盘双休日：周六上午endTime开始 ~ 周一上午endTime结束
-		if (st.wDayOfWeek == 0 ||  (st.wDayOfWeek == 6 && time > tradetime)
-			|| (st.wDayOfWeek == 1 && time < tradetime))
+		if (st->tm_wday == 0 ||  (st->tm_wday == 6 && rtime > tradetime)
+			|| (st->tm_wday == 1 && rtime < tradetime))
 			bFlag = true;
 
 		return bFlag;
@@ -358,10 +374,12 @@ namespace UtilityFun {
 	extern bool TodayIsWeekDayByInner()
 	{
 		bool bFlag(false);
-		SYSTEMTIME st = { 0 };
-		GetLocalTime(&st);
+		time_t t;
+		struct tm *st;
+		time(&t);
+		st = localtime(&t);
 
-		if (st.wDayOfWeek == 0 || st.wDayOfWeek == 1)
+		if (st->tm_wday == 0 || st->tm_wday == 1)
 			bFlag = true;
 
 		return bFlag;
@@ -370,14 +388,17 @@ namespace UtilityFun {
 	extern bool TodayIsWeekDayByInnerLimit(int stime /*= HX_INNER_STIME*/, int etime /*= HX_INNER_ETIME*/)
 	{
 		bool bFlag(false);
-		SYSTEMTIME st = { 0 };
-		GetLocalTime(&st);
-		int  time(-1);
-		time = st.wHour * 10000 + st.wMinute * 100 + st.wSecond;
+		time_t t;
+		struct tm *st;
+		time(&t);
+		st = localtime(&t);
+
+		int  rtime(-1);
+                rtime = st->tm_hour* 10000 + st->tm_min* 100 + st->tm_sec;
 
 		//注：外盘双休日：周六上午stime开始 ~ 周一上午etime结束
-		if (st.wDayOfWeek == 0 || (st.wDayOfWeek == 6 && time > stime)
-			|| (st.wDayOfWeek == 1 && time < etime))
+		if (st->tm_wday == 0 ||  (st->tm_wday == 6 && rtime > stime)
+			|| (st->tm_wday == 1 && rtime < etime))
 			bFlag = true;
 
 		return bFlag;
@@ -437,7 +458,7 @@ namespace UtilityFun {
 		int minute = (time % 10000) / 100;
 
 		char szBuffer[20] = { 0 };
-		_snprintf_s(szBuffer, sizeof(szBuffer) - 1, "%02d:%02d:%02d", hour, minute, second);
+		snprintf(szBuffer, sizeof(szBuffer) - 1, "%02d:%02d:%02d", hour, minute, second);
 		return szBuffer;
 	}
 
@@ -448,7 +469,7 @@ namespace UtilityFun {
 		int mon = (date % 10000) / 100;
 
 		char szBuffer[20] = { 0 };
-		_snprintf_s(szBuffer, sizeof(szBuffer) - 1, "%04d-%02d-%02d", year, mon, day);
+		snprintf(szBuffer, sizeof(szBuffer) - 1, "%04d-%02d-%02d", year, mon, day);
 		return  szBuffer;
 	}
 
@@ -462,7 +483,7 @@ namespace UtilityFun {
 
 	bool GetDateAndTimeInt(std::string dateTime, int & date, int & time)
 	{
-		int  dateIndex(0), timeIndex(0);
+		size_t dateIndex(0), timeIndex(0);
 		int  tmpDate(0), tmpTime(0);
 
 		while (dateIndex != std::string::npos)
@@ -497,7 +518,8 @@ namespace UtilityFun {
 
 	bool GetTimeInt(std::string time, int & tTime)
 	{
-		int  tmpTime(0), timeIndex(0);
+		int  tmpTime(0); 
+		size_t timeIndex(0);
 
 		while (timeIndex != std::string::npos)
 		{
@@ -521,7 +543,8 @@ namespace UtilityFun {
 
 	bool GetDateInt(std::string date, int & tDate)
 	{
-		int  dateIndex(0), tmpDate(0);
+		size_t dateIndex(0); 
+		int tmpDate(0);
 
 		while (dateIndex != std::string::npos)
 		{
@@ -552,35 +575,45 @@ namespace UtilityFun {
 
 	std::string createGUID()
 	{
-		// 存在warning C4996
-		boost::uuids::random_generator gen;
-		boost::uuids::uuid guid(gen());
-		return boost::uuids::to_string(guid);
+		char uuid [64];
+		uuid_t uu;
+		uuid_generate_random(uu);
+		uuid_unparse_lower(uu, uuid);
+
+		return std::string(uuid);
 	}
 
 	extern int getCurrentYear()
 	{
-		SYSTEMTIME st = { 0 };
-		GetLocalTime(&st);
+		time_t t;
+		struct tm *st;
+		time(&t);
+		st = localtime(&t);
 
-		return st.wYear;
+		return st->tm_year;
 	}
 
 	std::string getCurrentDate()
 	{
-		SYSTEMTIME st = { 0 };
-		GetLocalTime(&st);
+		time_t t;
+		struct tm *st;
+		time(&t);
+		st = localtime(&t);
+
 		char szBuffer[40] = { 0 };
-		_snprintf_s(szBuffer, sizeof(szBuffer) - 1, "%04d-%02d-%02d", st.wYear, st.wMonth, st.wDay);
+		snprintf(szBuffer, sizeof(szBuffer) - 1, "%04d-%02d-%02d", st->tm_year, st->tm_mon, st->tm_mday);
 		return szBuffer;
 	}
 
 	std::string getCurrentTime()
 	{
-		SYSTEMTIME st = { 0 };
-		GetLocalTime(&st);
+		time_t t;
+		struct tm *st;
+		time(&t);
+		st = localtime(&t);
+
 		char szBuffer[40] = { 0 };
-		_snprintf_s(szBuffer, sizeof(szBuffer) - 1, "%02d:%02d:%02d", st.wHour, st.wMinute, st.wSecond);
+		snprintf(szBuffer, sizeof(szBuffer) - 1, "%02d:%02d:%02d", st->tm_hour, st->tm_min, st->tm_sec);
 		return szBuffer;
 	}
 
@@ -598,8 +631,8 @@ namespace UtilityFun {
 
 		time(&ltime);
 		ltime = ltime + days * 60 * 60 * 24;
-		localtime_s(&tmcur, &ltime);
-		_snprintf_s(szBuffer, sizeof(szBuffer) - 1, "%04d-%02d-%02d", tmcur.tm_year + 1900, tmcur.tm_mon + 1, tmcur.tm_mday);
+		localtime_r(&ltime, &tmcur);
+		snprintf(szBuffer, sizeof(szBuffer) - 1, "%04d-%02d-%02d", tmcur.tm_year + 1900, tmcur.tm_mon + 1, tmcur.tm_mday);
 		return szBuffer;
 	}
 
@@ -609,7 +642,7 @@ namespace UtilityFun {
 			return "0000-00-00";
 
 		struct tm tm1;
-		int i = sscanf_s(d1.c_str(), "%04d-%02d-%02d",
+		sscanf(d1.c_str(), "%04d-%02d-%02d",
 			&(tm1.tm_year),
 			&(tm1.tm_mon),
 			&(tm1.tm_mday));
@@ -626,9 +659,9 @@ namespace UtilityFun {
 		ltime = ltime + days * 60 * 60 * 24;
 
 		struct tm   tmcur;
-		localtime_s(&tmcur, &ltime);
+		localtime_r(&ltime, &tmcur);
 		char szBuffer[40] = { 0 };
-		_snprintf_s(szBuffer, sizeof(szBuffer) - 1, "%04d-%02d-%02d", tmcur.tm_year + 1900, tmcur.tm_mon + 1, tmcur.tm_mday);
+		snprintf(szBuffer, sizeof(szBuffer) - 1, "%04d-%02d-%02d", tmcur.tm_year + 1900, tmcur.tm_mon + 1, tmcur.tm_mday);
 
 		return szBuffer;
 	}
@@ -642,8 +675,8 @@ namespace UtilityFun {
 
 		time(&ltime);
 		ltime = ltime + secs;
-		localtime_s(&tmcur, &ltime);
-		_snprintf_s(szBuffer, sizeof(szBuffer) - 1,
+		localtime_r(&ltime, &tmcur);
+		snprintf(szBuffer, sizeof(szBuffer) - 1,
 			"%04d-%02d-%02d %02d:%02d:%02d"
 			, tmcur.tm_year + 1900, tmcur.tm_mon + 1, tmcur.tm_mday
 			, tmcur.tm_hour, tmcur.tm_min, tmcur.tm_sec);
@@ -656,7 +689,7 @@ namespace UtilityFun {
 			return -1;
 
 		struct tm tm1, tm2;
-		sscanf_s(d1.c_str(), "%04d-%02d-%02d",
+		sscanf(d1.c_str(), "%04d-%02d-%02d",
 			&(tm1.tm_year),
 			&(tm1.tm_mon),
 			&(tm1.tm_mday));
@@ -668,7 +701,7 @@ namespace UtilityFun {
 		tm1.tm_sec = 0;
 		tm1.tm_isdst = -1;
 
-		sscanf_s(d2.c_str(), "%04d-%02d-%02d",
+		sscanf(d2.c_str(), "%04d-%02d-%02d",
 			&(tm2.tm_year),
 			&(tm2.tm_mon),
 			&(tm2.tm_mday));
@@ -694,7 +727,7 @@ namespace UtilityFun {
 			return -1;
 
 		struct tm tm1, tm2;
-		sscanf_s(dt1.c_str(), "%04d-%02d-%02d %2d:%2d:%2d",
+		sscanf(dt1.c_str(), "%04d-%02d-%02d %2d:%2d:%2d",
 			&(tm1.tm_year),
 			&(tm1.tm_mon),
 			&(tm1.tm_mday),
@@ -706,7 +739,7 @@ namespace UtilityFun {
 		tm1.tm_mon--;
 		tm1.tm_isdst = -1;
 
-		sscanf_s(dt2.c_str(), "%04d-%02d-%02d %2d:%2d:%2d",
+		sscanf(dt2.c_str(), "%04d-%02d-%02d %2d:%2d:%2d",
 			&(tm2.tm_year),
 			&(tm2.tm_mon),
 			&(tm2.tm_mday),
@@ -732,7 +765,7 @@ namespace UtilityFun {
 			return -1;
 
 		struct tm tm1, tm2;
-		sscanf_s(dt1.c_str(), "%04d-%02d-%02d %2d:%2d:%2d",
+		sscanf(dt1.c_str(), "%04d-%02d-%02d %2d:%2d:%2d",
 			&(tm1.tm_year),
 			&(tm1.tm_mon),
 			&(tm1.tm_mday),
@@ -744,7 +777,7 @@ namespace UtilityFun {
 		tm1.tm_mon--;
 		tm1.tm_isdst = -1;
 
-		sscanf_s(dt2.c_str(), "%04d-%02d-%02d %2d:%2d:%2d",
+		sscanf(dt2.c_str(), "%04d-%02d-%02d %2d:%2d:%2d",
 			&(tm2.tm_year),
 			&(tm2.tm_mon),
 			&(tm2.tm_mday),
@@ -765,10 +798,13 @@ namespace UtilityFun {
 
 	int getCurrentDateInt()
 	{
-		SYSTEMTIME st = { 0 };
-		GetLocalTime(&st);
+		time_t t;
+		struct tm *st;
+		time(&t);
+		st = localtime(&t);
+
 		char szBuffer[40] = { 0 };
-		_snprintf_s(szBuffer, sizeof(szBuffer) - 1, "%04d%02d%02d", st.wYear, st.wMonth, st.wDay);
+		snprintf(szBuffer, sizeof(szBuffer) - 1, "%04d%02d%02d", st->tm_year, st->tm_mon, st->tm_mday);
 		return atoi(szBuffer);
 	}
 

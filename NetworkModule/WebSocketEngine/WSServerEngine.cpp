@@ -1,4 +1,5 @@
 #include "WSServerEngine.h"
+#include "../Session/SessionManager.h"
 
 // ws msg header & end
 const char* const G_MSGHEADER = "<HX>";
@@ -48,9 +49,17 @@ EnHandleResult CWSServerEngine::OnSend(ITcpServer* pSender, CONNID dwConnID, con
 EnHandleResult CWSServerEngine::OnClose(ITcpServer* pSender, CONNID dwConnID, EnSocketOperation enOperation, int iErrorCode)
 {
 	std::cout << dwConnID << "on close" << std::endl;
+	// TODO
+	// check key dwConnID exist
 	m_bodyData.erase(dwConnID);
 	m_remain.erase(dwConnID);
 	//m_bodyMEMPool.deallocate(mC_bodyData[dwConnID]);
+	
+	// remove session
+	auto sessionID = m_session[dwConnID];
+	CSessionManager::instance()->DelSession(sessionID);
+	m_session.erase(dwConnID);
+
 	return HR_OK;
 }
 
@@ -66,6 +75,20 @@ EnHttpParseResult CWSServerEngine::OnMessageBegin(IHttpServer* pSender, CONNID d
 	std::cout<< "on message begin" << std::endl;
 	m_bodyData.insert(std::make_pair(dwConnID, ""));
 	m_remain.insert(std::make_pair(dwConnID, ""));
+
+	// TODO
+	// set up session
+	TCHAR szAddress[50];
+	int iAddressLen = sizeof(szAddress) / sizeof(TCHAR);
+	USHORT usPort;
+	pSender->GetListenAddress(szAddress, iAddressLen, usPort);
+
+	SessionPtr session = std::make_shared<Session>();
+	session->SetWSSender(pSender, dwConnID);
+	session->Init(szAddress, usPort);
+	CSessionManager::instance()->AddSession(session);
+	m_session[dwConnID] = session->SessionID();
+
 	return HPR_OK;
 }
 

@@ -19,5 +19,11 @@ void Session::Write(const std::string& content) {
 	// send ws response
 	BYTE optCode = 0x1;
 	m_sender->SendWSMessage(m_connID, bFinal, iReserved, optCode, nullptr, (BYTE*)content.data(), content.length());
+}
 
+int Session::Init(const std::string& ip, unsigned short port)
+{
+	m_ip = ip;
+	m_sessionID = ip + "_" + std::to_string(port);
+	return 0;
 }

@@ -1,8 +1,8 @@
 #include "SessionManager.h"
-//#include "CommonEnum.h"
+#include "../common/utils/utility_fun.h"
+#include "../common/CommonEnum.h"
 //#include "DBBussUser.h"
 //#include "DBBussSystemSet.h"
-//#include "utility_fun.h"
 
 CSessionManager::CSessionManager()
 {
@@ -141,6 +141,7 @@ std::vector<std::string> CSessionManager::GetSessionID(const std::string& userID
 	}
 	return sessions;
 }
+
 std::string CSessionManager::GetUseIDBySessionID(const std::string& sessionID)
 {
 	readLock lock(m_mutex);
@@ -198,134 +199,134 @@ std::vector<std::string> CSessionManager::GetAllOnlineSession()
 	return sessions;
 }
 
-/*
- *OnlineUserInfoPtrVec CSessionManager::GetAllOnlineSessionInfo()
- *{
- *        readLock lock(m_mutex);
- *        OnlineUserInfoPtrVec tableInfos;
- *        for (auto iter : m_allSessions)
- *        {
- *                if (nullptr == iter.second.get())
- *                        continue;
- *
- *                OnlineUserInfoPtr tableInfo = std::make_shared<OnlineUserInfo>();
- *                tableInfo->m_userID = iter.second->GetUserID();
- *                tableInfo->m_accountName = iter.second->GetUserName();
- *                tableInfo->m_ip = iter.second->GetIp();
- *                tableInfo->m_loginName = iter.second->GetLoginName();
- *                UtilityFun::GetDateAndTimeInt(iter.second->GetLoginTime(), tableInfo->m_loginDate, tableInfo->m_loginTime);
- *                tableInfo->m_registerTime = iter.second->GetRegisterTime();
- *                tableInfos.emplace_back(tableInfo);
- *        }
- *        return tableInfos;
- *}
- */
+OnlineUserInfoPtrVec CSessionManager::GetAllOnlineSessionInfo()
+{
+	readLock lock(m_mutex);
+	OnlineUserInfoPtrVec tableInfos;
+	for (auto iter : m_allSessions)
+	{
+		if (nullptr == iter.second.get())
+			continue;
+
+		OnlineUserInfoPtr tableInfo = std::make_shared<OnlineUserInfo>();
+		tableInfo->m_userID = iter.second->GetUserID();
+		tableInfo->m_accountName = iter.second->GetUserName();
+		tableInfo->m_ip = iter.second->GetIp();
+		tableInfo->m_loginName = iter.second->GetLoginName();
+		UtilityFun::GetDateAndTimeInt(iter.second->GetLoginTime(), tableInfo->m_loginDate, tableInfo->m_loginTime);
+		tableInfo->m_registerTime = iter.second->GetRegisterTime();
+		tableInfos.emplace_back(tableInfo);
+	}
+	return tableInfos;
+}
+
+int CSessionManager::SendByUserID(const std::string& userID, const std::string& content)
+{
+	readLock lock(m_mutex);
+	for (auto iter : m_allSessions)
+	{
+		if (nullptr == iter.second.get())
+			continue;
+
+		if (userID == iter.second->GetUserID())
+		{
+			iter.second->Write(content);
+		}
+	}
+	return 0;
+}
+
+int CSessionManager::SendToAllOnline(const std::string& content)
+{
+	readLock lock(m_mutex);
+	for (auto iter : m_allSessions)
+	{
+		if (iter.second)
+			iter.second->Write(content);
+	}
+	return 0;
+}
+
+int CSessionManager::SendToAllLogin(const std::string& content)
+{
+	readLock lock(m_mutex);
+	for (auto iter : m_tradeAppSessions)
+	{
+		if (iter.second)
+			iter.second->Write(content);
+	}
+	for (auto iter : m_tradePcSessions)
+	{
+		if (iter.second)
+			iter.second->Write(content);
+	}
+	for (auto iter : m_insSessions)
+	{
+		if (iter.second)
+			iter.second->Write(content);
+	}
+	for (auto iter : m_riskSessions)
+	{
+		if (iter.second)
+			iter.second->Write(content);
+	}
+	return 0;
+}
+
+OnlineUserInfoPtrVec CSessionManager::GetAllOnlineChildAccSession()
+{
+	readLock lock(m_mutex);
+	OnlineUserInfoPtrVec tableInfos;
+	for (auto iter : m_allSessions)
+	{
+		if (nullptr == iter.second.get())
+			continue;
+
+		if (EAP_Trader == iter.second->GetUserType())
+		{
+			OnlineUserInfoPtr tableInfo = std::make_shared<OnlineUserInfo>();
+			tableInfo->m_userID = iter.second->GetUserID();
+			tableInfo->m_accountName = iter.second->GetUserName();
+			tableInfo->m_ip = iter.second->GetIp();
+			tableInfo->m_loginName = iter.second->GetLoginName();
+			UtilityFun::GetDateAndTimeInt(iter.second->GetLoginTime(), tableInfo->m_loginDate, tableInfo->m_loginTime);
+			tableInfo->m_registerTime = iter.second->GetRegisterTime();
+			tableInfos.emplace_back(tableInfo);
+		}
+	}
+	return tableInfos;
+}
+
+
+int CSessionManager::SendToAllMonitor(const std::string& content)
+{
+	readLock lock(m_mutex);
+	for (auto iter : m_insSessions)
+	{
+		if (nullptr == iter.second.get())
+			continue;
+
+		if (iter.second && EAP_Risker == iter.second->GetUserType())
+			iter.second->Write(content);
+	}
+	return 0;
+}
+
+int CSessionManager::SendToAllManagerAndIns(const std::string& content)
+{
+	readLock lock(m_mutex);
+	for (auto iter : m_insSessions)
+	{
+		if (nullptr == iter.second.get())
+			continue;
+
+		if (iter.second && (EAP_Manager == iter.second->GetUserType() || EAP_Agency == iter.second->GetUserType()))
+			iter.second->Write(content);
+	}
+	return 0;
+}
 
 /*
- *int CSessionManager::SendByUserID(const std::string& userID, const std::string& content)
- *{
- *        readLock lock(m_mutex);
- *        for (auto iter : m_allSessions)
- *        {
- *                if (nullptr == iter.second.get())
- *                        continue;
- *
- *                if (userID == iter.second->GetUserID())
- *                {
- *                        iter.second->Write(content);
- *                }
- *        }
- *        return 0;
- *}
- *
- *int CSessionManager::SendToAllOnline(const std::string& content)
- *{
- *        readLock lock(m_mutex);
- *        for (auto iter : m_allSessions)
- *        {
- *                if (iter.second)
- *                        iter.second->Write(content);
- *        }
- *        return 0;
- *}
- *
- *int CSessionManager::SendToAllLogin(const std::string& content)
- *{
- *        readLock lock(m_mutex);
- *        for (auto iter : m_tradeAppSessions)
- *        {
- *                if (iter.second)
- *                        iter.second->Write(content);
- *        }
- *        for (auto iter : m_tradePcSessions)
- *        {
- *                if (iter.second)
- *                        iter.second->Write(content);
- *        }
- *        for (auto iter : m_insSessions)
- *        {
- *                if (iter.second)
- *                        iter.second->Write(content);
- *        }
- *        for (auto iter : m_riskSessions)
- *        {
- *                if (iter.second)
- *                        iter.second->Write(content);
- *        }
- *        return 0;
- *}
- *OnlineUserInfoPtrVec CSessionManager::GetAllOnlineChildAccSession()
- *{
- *        readLock lock(m_mutex);
- *        OnlineUserInfoPtrVec tableInfos;
- *        for (auto iter : m_allSessions)
- *        {
- *                if (nullptr == iter.second.get())
- *                        continue;
- *
- *                if (EAP_Trader == iter.second->GetUserType())
- *                {
- *                        OnlineUserInfoPtr tableInfo = std::make_shared<OnlineUserInfo>();
- *                        tableInfo->m_userID = iter.second->GetUserID();
- *                        tableInfo->m_accountName = iter.second->GetUserName();
- *                        tableInfo->m_ip = iter.second->GetIp();
- *                        tableInfo->m_loginName = iter.second->GetLoginName();
- *                        UtilityFun::GetDateAndTimeInt(iter.second->GetLoginTime(), tableInfo->m_loginDate, tableInfo->m_loginTime);
- *                        tableInfo->m_registerTime = iter.second->GetRegisterTime();
- *                        tableInfos.emplace_back(tableInfo);
- *                }
- *        }
- *        return tableInfos;
- *}
- *
- *int CSessionManager::SendToAllMonitor(const std::string& content)
- *{
- *        readLock lock(m_mutex);
- *        for (auto iter : m_insSessions)
- *        {
- *                if (nullptr == iter.second.get())
- *                        continue;
- *
- *                if (iter.second && EAP_Risker == iter.second->GetUserType())
- *                        iter.second->Write(content);
- *        }
- *        return 0;
- *}
- *
- *int CSessionManager::SendToAllManagerAndIns(const std::string& content)
- *{
- *        readLock lock(m_mutex);
- *        for (auto iter : m_insSessions)
- *        {
- *                if (nullptr == iter.second.get())
- *                        continue;
- *
- *                if (iter.second && (EAP_Manager == iter.second->GetUserType() || EAP_Agency == iter.second->GetUserType()))
- *                        iter.second->Write(content);
- *        }
- *        return 0;
- *}
- *
  *int CSessionManager::SendToAllRelatedMonitorByIns(const std::string& userID, const std::string& content)
  *{
  *        readLock lock(m_mutex);
@@ -371,7 +372,9 @@ std::vector<std::string> CSessionManager::GetAllOnlineSession()
  *
  *        return 0;
  *}
- *
+ */
+
+/*
  *int CSessionManager::SendToAllRelatedManagerAndInsByIns(const std::string& userID, const std::string& content)
  *{
  *        readLock lock(m_mutex);
@@ -420,7 +423,9 @@ std::vector<std::string> CSessionManager::GetAllOnlineSession()
  *
  *        return 0;
  *}
- *
+ */
+
+/*
  *int CSessionManager::SendToAllRelatedManagerAndInsByManager(const std::string& userID, const std::string& content)
  *{
  *        readLock lock(m_mutex);
@@ -468,17 +473,19 @@ std::vector<std::string> CSessionManager::GetAllOnlineSession()
  *
  *        return 0;
  *}
- *
- *int CSessionManager::SendToAllRelatedManagerAndInsBySession(const std::string& sessionID, const std::string& content)
- *{
- *        SessionPtr sessionPtr = GetLoginSession(sessionID);
- *        if (nullptr == sessionPtr.get())
- *                return -1;
- *
- *        SendToAllRelatedManagerAndIns(sessionPtr->GetUserID(), content);
- *        return 0;
- *}
- *
+ */
+
+int CSessionManager::SendToAllRelatedManagerAndInsBySession(const std::string& sessionID, const std::string& content)
+{
+	SessionPtr sessionPtr = GetLoginSession(sessionID);
+	if (nullptr == sessionPtr.get())
+		return -1;
+
+	SendToAllRelatedManagerAndIns(sessionPtr->GetUserID(), content);
+	return 0;
+}
+
+/*
  *int CSessionManager::SendToAllRelatedManagerAndIns(const std::string& userID, const std::string& content)
  *{
  *        TableUsersAndRelationShipPtr userInfo;
@@ -493,7 +500,9 @@ std::vector<std::string> CSessionManager::GetAllOnlineSession()
  *
  *        return 0;
  *}
- *
+ */
+
+/*
  *int CSessionManager::SendToAllRelatedMonitorByAcc(const std::string& userID, const std::string& content)
  *{
  *        readLock lock(m_mutex);
@@ -540,83 +549,85 @@ std::vector<std::string> CSessionManager::GetAllOnlineSession()
  *
  *        return 0;
  *}
- *
- *int CSessionManager::SendToAllMonitorByAcc(const std::string & userID, const std::string & content)
- *{
- *        readLock lock(m_mutex);
- *
- *        // 通知父节点下的风控员
- *        for (auto iter : m_riskSessions)
- *        {
- *                if (nullptr == iter.second.get())
- *                        continue;
- *
- *                if (iter.second)
- *                        iter.second->Write(content);
- *        }
- *
- *        return 0;
- *}
- *
- *bool CSessionManager::IsOnline(const std::string& sessionID)
- *{
- *        return m_insSessions[sessionID]->IsOnline();
- *}
- *
- *bool CSessionManager::IsUserOnline(const std::string& userID, int userType)
- *{
- *        switch (userType)
- *        {
- *        case EAP_Trader:
- *        case EAP_Funder:
- *        {
- *                for (auto iter : m_tradePcSessions)
- *                {
- *                        if (nullptr == iter.second.get())
- *                                continue;
- *                        if (iter.second->GetUserID() == userID)
- *                                return true;
- *                }
- *
- *                for (auto iter : m_tradeAppSessions)
- *                {
- *                        if (nullptr == iter.second.get())
- *                                continue;
- *                        if (iter.second->GetUserID() == userID)
- *                                return true;
- *                }
- *                break;
- *        }
- *        case EAP_Manager:
- *        case EAP_Agency:
- *        {
- *                for (auto iter : m_insSessions)
- *                {
- *                        if (nullptr == iter.second.get())
- *                                continue;
- *                        if (iter.second->GetUserID() == userID)
- *                                return true;
- *                }
- *                break;
- *        }
- *        case EAP_Risker:
- *        {
- *                for (auto iter : m_riskSessions)
- *                {
- *                        if (nullptr == iter.second.get())
- *                                continue;
- *                        if (iter.second->GetUserID() == userID)
- *                                return true;
- *                }
- *                break;
- *        }
- *        default:
- *                break;
- *        }
- *
- *        return false;
- *}
- *
+ */
+
+int CSessionManager::SendToAllMonitorByAcc(const std::string & userID, const std::string & content)
+{
+	readLock lock(m_mutex);
+
+	// 通知父节点下的风控员
+	for (auto iter : m_riskSessions)
+	{
+		if (nullptr == iter.second.get())
+			continue;
+
+		if (iter.second)
+			iter.second->Write(content);
+	}
+
+	return 0;
+}
+
+bool CSessionManager::IsOnline(const std::string& sessionID)
+{
+	return m_insSessions[sessionID]->IsOnline();
+}
+
+bool CSessionManager::IsUserOnline(const std::string& userID, int userType)
+{
+	switch (userType)
+	{
+	case EAP_Trader:
+	case EAP_Funder:
+	{
+		for (auto iter : m_tradePcSessions)
+		{
+			if (nullptr == iter.second.get())
+				continue;
+			if (iter.second->GetUserID() == userID)
+				return true;
+		}
+
+		for (auto iter : m_tradeAppSessions)
+		{
+			if (nullptr == iter.second.get())
+				continue;
+			if (iter.second->GetUserID() == userID)
+				return true;
+		}
+		break;
+	}
+	case EAP_Manager:
+	case EAP_Agency:
+	{
+		for (auto iter : m_insSessions)
+		{
+			if (nullptr == iter.second.get())
+				continue;
+			if (iter.second->GetUserID() == userID)
+				return true;
+		}
+		break;
+	}
+	case EAP_Risker:
+	{
+		for (auto iter : m_riskSessions)
+		{
+			if (nullptr == iter.second.get())
+				continue;
+			if (iter.second->GetUserID() == userID)
+				return true;
+		}
+		break;
+	}
+	default:
+		break;
+	}
+
+	return false;
+}
+
+/*
  *int CSessionManager::SendToAllOnlineChildAcc(const std::string& marginModuleID, const std::string& content)
  *{
  *        TableUsersAndRelationShipPtrVec userInfos;
@@ -670,40 +681,39 @@ std::vector<std::string> CSessionManager::GetAllOnlineSession()
  *
  *        return 0;
  *}
- *
- *int CSessionManager::SendToSameLevelManagerAndInsBySession(const std::string& sessionID, const std::string& content)
- *{
- *        SessionPtr sessionPtr = GetLoginSession(sessionID);
- *        if (nullptr == sessionPtr.get())
- *                return -1;
- *
- *        return SendToSameLevelManagerAndIns(sessionPtr->GetUserID(), content);
- *}
- *
- *int CSessionManager::SendToSuperManagerAndIns(const std::string& content)
- *{
- *        for (auto iter : m_insSessions)
- *        {
- *                if (nullptr == iter.second.get())
- *                        continue;
- *
- *                if (iter.second->GetUserLevel() == 1 && (iter.second->GetUserType() == EAP_Manager|| iter.second->GetUserType() == EAP_Agency))
- *                {
- *                        if (iter.second)
- *                                iter.second->Write(content);
- *                }
- *        }
- *
- *        return 0;
- *}
- *
- *bool CSessionManager::IsUserExist(const std::string& sessionID)
- *{
- *        readLock lock(m_mutex);
- *        auto iter = m_allSessions.find(sessionID);
- *        if (iter != m_allSessions.end())
- *                return true;
- *        return false;
- *}
- *
  */
+
+int CSessionManager::SendToSameLevelManagerAndInsBySession(const std::string& sessionID, const std::string& content)
+{
+	SessionPtr sessionPtr = GetLoginSession(sessionID);
+	if (nullptr == sessionPtr.get())
+		return -1;
+
+	return SendToSameLevelManagerAndIns(sessionPtr->GetUserID(), content);
+}
+
+int CSessionManager::SendToSuperManagerAndIns(const std::string& content)
+{
+	for (auto iter : m_insSessions)
+	{
+		if (nullptr == iter.second.get())
+			continue;
+
+		if (iter.second->GetUserLevel() == 1 && (iter.second->GetUserType() == EAP_Manager|| iter.second->GetUserType() == EAP_Agency))
+		{
+			if (iter.second)
+				iter.second->Write(content);
+		}
+	}
+
+	return 0;
+}
+
+bool CSessionManager::IsUserExist(const std::string& sessionID)
+{
+	readLock lock(m_mutex);
+	auto iter = m_allSessions.find(sessionID);
+	if (iter != m_allSessions.end())
+		return true;
+	return false;
+}

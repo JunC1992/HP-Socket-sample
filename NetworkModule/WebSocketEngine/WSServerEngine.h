@@ -69,4 +69,6 @@ public:
 	std::map<CONNID, std::string> m_bodyData; 
 	// ws remain data
 	std::map<CONNID, std::string> m_remain;
+	// ws session
+	std::map<CONNID, std::string> m_session;
 };

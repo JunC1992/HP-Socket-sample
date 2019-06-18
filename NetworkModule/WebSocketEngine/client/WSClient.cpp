@@ -23,7 +23,7 @@ void CWSClient::init(){
 	(*m_pClient)->SetKeepAliveInterval(0);
 }
 
-bool CWSClient::upgradeProtocal() {
+bool CWSClient::upgradeProtocal(){
 	THeader header[] = {
 		{"Connection", UPGRADE_HEADER},
 		{UPGRADE_HEADER, WEB_SOCKET_HEADER_VALUE},
@@ -45,7 +45,7 @@ bool CWSClient::upgradeProtocal() {
 	return true;
 }
 
-bool CWSClient::requestQuotation() {
+bool CWSClient::requestQuotation(){
 	// quotation params
 	Json::Value content;
 	content["type"]	= 7;
@@ -57,7 +57,7 @@ bool CWSClient::requestQuotation() {
 	return SendWebSocket(msg);
 }
 
-bool CWSClient::Start() {
+bool CWSClient::Start(){
 	// init ws client engine
 	init();
 
@@ -89,7 +89,7 @@ bool CWSClient::Start() {
 	return true;
 }
 
-bool CWSClient::Stop() {
+bool CWSClient::Stop(){
 	return (*m_pClient)->Stop();
 }
 
