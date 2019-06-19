@@ -9,7 +9,6 @@
 #include <string.h>
 #include <thread>
 
-//#include "../common/BufferPtr.h"
 #include "../WebSocketHandle/WSHandle.h"
 #include "../common/queue/ThreadPool.hpp"
 #include "../common/mempool/MemoryPool.h"

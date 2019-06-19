@@ -1,33 +1,35 @@
 #include "WSServerEngine.h"
+
+#include <sstream>
+
 #include "../Session/SessionManager.h"
+#include "../common/log4cxx/hx_log4cxx.h"
 
 // ws msg header & end
 const char* const G_MSGHEADER = "<HX>";
 const char* const G_MSGEND = "<END>";
 
+NG_LOGGER(logger, "WSServerEngine");
+
 EnHandleResult CWSServerEngine::OnPrepareListen(ITcpServer* pSender, SOCKET soListen)
 {
-	TCHAR szAddress[50];
-	int iAddressLen = sizeof(szAddress) / sizeof(TCHAR);
-	USHORT usPort;
-	
-	pSender->GetListenAddress(szAddress, iAddressLen, usPort);
-	std::cout<< "http server: " << szAddress << " port: " << usPort << std::endl;
-
 	return HR_OK;
 }
 
 EnHandleResult CWSServerEngine::OnAccept(ITcpServer* pSender, CONNID dwConnID, UINT_PTR soClient)
 {
-	BOOL bPass = TRUE;
 	TCHAR szAddress[50];
 	int iAddressLen = sizeof(szAddress) / sizeof(TCHAR);
 	USHORT usPort;
 
 	pSender->GetRemoteAddress(dwConnID, szAddress, iAddressLen, usPort);
-	std::cout<< "get one connect: " << szAddress << " port: " << usPort << std::endl;
+	std::cout<< "accept one connect: " << szAddress << ":" << usPort << std::endl;
 
-	return bPass ? HR_OK : HR_ERROR;
+	std::ostringstream s;
+	s << "accept one connect: " << szAddress << ":" << usPort;
+	LOG4CXX_INFO(logger, s.str());
+
+	return HR_OK;
 }
 
 EnHandleResult CWSServerEngine::OnHandShake(ITcpServer* pSender, CONNID dwConnID)
@@ -37,7 +39,7 @@ EnHandleResult CWSServerEngine::OnHandShake(ITcpServer* pSender, CONNID dwConnID
 
 EnHandleResult CWSServerEngine::OnReceive(ITcpServer* pSender, CONNID dwConnID, const BYTE* pData, int iLength)
 {
-	std::cout<< "receive data: " << pData << std::endl;
+	//std::cout<< "receive data: " << pData << std::endl;
 	return HR_OK;
 }
 
@@ -48,9 +50,6 @@ EnHandleResult CWSServerEngine::OnSend(ITcpServer* pSender, CONNID dwConnID, con
 
 EnHandleResult CWSServerEngine::OnClose(ITcpServer* pSender, CONNID dwConnID, EnSocketOperation enOperation, int iErrorCode)
 {
-	std::cout << dwConnID << "on close" << std::endl;
-	// TODO
-	// check key dwConnID exist
 	m_bodyData.erase(dwConnID);
 	m_remain.erase(dwConnID);
 	//m_bodyMEMPool.deallocate(mC_bodyData[dwConnID]);
@@ -59,7 +58,10 @@ EnHandleResult CWSServerEngine::OnClose(ITcpServer* pSender, CONNID dwConnID, En
 	auto sessionID = m_session[dwConnID];
 	CSessionManager::instance()->DelSession(sessionID);
 	m_session.erase(dwConnID);
+	std::cout << "websocket client " << sessionID << " on Disconnect" << std::endl;
 
+	std::stringstream s;
+	s << "websocket client " << sessionID << " on Disconnect";
 	return HR_OK;
 }
 
@@ -76,8 +78,6 @@ EnHttpParseResult CWSServerEngine::OnMessageBegin(IHttpServer* pSender, CONNID d
 	m_bodyData.insert(std::make_pair(dwConnID, ""));
 	m_remain.insert(std::make_pair(dwConnID, ""));
 
-	// TODO
-	// set up session
 	TCHAR szAddress[50];
 	int iAddressLen = sizeof(szAddress) / sizeof(TCHAR);
 	USHORT usPort;
@@ -108,9 +108,6 @@ EnHttpParseResult CWSServerEngine::OnHeader(IHttpServer* pSender, CONNID dwConnI
 
 EnHttpParseResult CWSServerEngine::OnHeadersComplete(IHttpServer* pSender, CONNID dwConnID)
 {
-	/*
-	 *CStringA strSummary = GetHeaderSummary(pSender, dwConnID, "    ", 0, TRUE);
-	 */
 	std::cout<< "on header complete" << std::endl;
 
 	return HPR_OK;
@@ -210,9 +207,12 @@ EnHandleResult CWSServerEngine::HttpHandle(IHttpServer* pSender, CONNID dwConnID
 	}
 
 	auto vec = Parser(dwConnID, body);
-	std::cout << "cmd: " << vec.size() << std::endl;
+	std::stringstream s;
 	for (auto v : vec) {
 		//m_handleTHPool.AddTask([=]{
+			s << "rec client " << m_session[dwConnID] << " msg:" << v.c_str();
+			LOG4CXX_DEBUG(logger, s.str());
+
 			std::string resp;
 			HttpHandleProcess(v, resp);
 			// 0x1: websocket send TEXT frame

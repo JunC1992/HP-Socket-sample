@@ -1,18 +1,14 @@
 #pragma once
 
-#include <iostream>
+#include <map>
 #include <string>
 #include <thread>
 
 #include <hpsocket/HPSocket.h> 
 #include <hpsocket/common/GlobalDef.h> 
-#include <jsoncpp/json/json.h>
-
-#include "../common/queue/ThreadPool.hpp"
-#include "../common/mempool/MemoryPool.h"
-#include "../common/mutex/cmutex.h"
 
 #include "../HttpHandle/HttpHandle.h"
+#include "../common/queue/ThreadPool.hpp"
 
 class CHttpServerEngine: public CHttpServerListener {
 private:

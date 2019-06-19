@@ -72,8 +72,8 @@ typedef std::vector<OnlineUserInfoPtr> OnlineUserInfoPtrVec;
 class CSessionManager : public CommonTools::instance_shared_from_this<CSessionManager>
 {
 public:
-	CSessionManager();
-	~CSessionManager();
+	CSessionManager()=default;
+	~CSessionManager()=default;
 
 public:
 	// Ìí¼Ó

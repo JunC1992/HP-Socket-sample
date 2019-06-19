@@ -1,5 +1,8 @@
 #include "TcpServerEngine.h"
+
 #include <thread>
+
+#include "../common/log4cxx/hx_log4cxx.h"
 
 // tcp msg header & end
 const char* const G_MSGHEADER = "<HX>";
@@ -7,17 +10,10 @@ const char* const G_MSGEND = "<END>";
 const char* const G_ZEORMSG = "<HX><END>";
 const int G_ZEORMSGLEN = 9;
 
+NG_LOGGER(logger, "TCPServerEngine");
+
 EnHandleResult CTcpServerEngine::OnPrepareListen(ITcpServer* pSender, SOCKET soListen)
 {
-	TCHAR szAddress[50];
-	int iAddressLen = sizeof(szAddress) / sizeof(TCHAR);
-	USHORT usPort;
-
-	pSender->GetListenAddress(szAddress, iAddressLen, usPort);
-	//TODO
-	//log start info
-	std::cout<< "OnPrepareListen...\n";
-	std::cout<< "servser addr: "<< szAddress << ", port: " << usPort <<"\n";
 	return HR_OK;
 }
 
@@ -27,8 +23,11 @@ EnHandleResult CTcpServerEngine::OnAccept(ITcpServer* pSender, CONNID dwConnID, 
 	int iAddressLen = sizeof(szAddress) / sizeof(TCHAR);
 	USHORT usPort;
 
+	std::ostringstream s;
 	pSender->GetRemoteAddress(dwConnID, szAddress, iAddressLen, usPort);
-	std::cout<< "get one connect: " << szAddress << ":" << usPort << "\n";
+	s << "accept one connect: " << szAddress << ":" << usPort;
+	LOG4CXX_INFO(logger, s.str());
+	std::cout<< s.str() << std::endl;
 
 	// set $CONNID stream remain buffer 
 	m_remain.insert(std::make_pair(dwConnID, ""));

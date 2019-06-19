@@ -1,6 +1,7 @@
 CXX = g++
 CFLAGS = -Wall -O2
 #CFLAGS = -Wall -O2 -g
+#LIBS = -lhpsocket -lpthread -ljsoncpp -llog4cpp
 SRCS = $(wildcard *.cpp */*.cpp */*/*.cpp)
 OBJS = $(patsubst %.cpp, %.o, $(SRCS))
 

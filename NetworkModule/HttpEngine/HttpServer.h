@@ -1,7 +1,6 @@
 #pragma once
 
 #include "HttpServerEngine.h"
-#include "../common/net/NetBaseDef.h"
 
 // default serv_ip & serv_port
 #define DEFAULT_HTTP_IP "127.0.0.1"

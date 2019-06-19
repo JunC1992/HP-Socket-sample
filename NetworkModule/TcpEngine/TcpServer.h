@@ -29,7 +29,7 @@ public:
 
 	//TODO
 	// stop tcp server daemon
-	// void Stop();
+	 void Stop();
 	//
 	// thread pool set
 	// package parse

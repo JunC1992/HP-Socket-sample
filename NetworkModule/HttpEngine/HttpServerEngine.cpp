@@ -1,5 +1,14 @@
 #include "HttpServerEngine.h"
 
+#include <sstream>
+#include <jsoncpp/json/json.h>
+
+#include "../common/log4cxx/hx_log4cxx.h"
+#include "../common/mempool/MemoryPool.h"
+#include "../common/mutex/cmutex.h"
+
+NG_LOGGER(logger, "CWSServerEngine");
+
 EnHandleResult CHttpServerEngine::OnPrepareListen(ITcpServer* pSender, SOCKET soListen)
 {
 	TCHAR szAddress[50];
@@ -7,22 +16,27 @@ EnHandleResult CHttpServerEngine::OnPrepareListen(ITcpServer* pSender, SOCKET so
 	USHORT usPort;
 	
 	pSender->GetListenAddress(szAddress, iAddressLen, usPort);
-	std::cout<< "http server: " << szAddress << " port: " << usPort << std::endl;
+	std::cout<< "http server start on " << szAddress << ":" << usPort << std::endl;
+	std::ostringstream s;
+	s << "http server start on " << szAddress << ":" << usPort;
+	LOG4CXX_INFO(logger, s.str());
 
 	return HR_OK;
 }
 
 EnHandleResult CHttpServerEngine::OnAccept(ITcpServer* pSender, CONNID dwConnID, UINT_PTR soClient)
 {
-	BOOL bPass = TRUE;
 	TCHAR szAddress[50];
 	int iAddressLen = sizeof(szAddress) / sizeof(TCHAR);
 	USHORT usPort;
 
 	pSender->GetRemoteAddress(dwConnID, szAddress, iAddressLen, usPort);
-	std::cout<< "get one connect: " << szAddress << " port: " << usPort << std::endl;
+	std::cout<< "accept one connect: " << szAddress << ":" << usPort << std::endl;
+	std::ostringstream s;
+	s << "accept one connect: " << szAddress << ":" << usPort;
+	LOG4CXX_INFO(logger, s.str());
 
-	return bPass ? HR_OK : HR_ERROR;
+	return HR_OK;
 }
 
 EnHandleResult CHttpServerEngine::OnHandShake(ITcpServer* pSender, CONNID dwConnID)
@@ -55,6 +69,7 @@ EnHandleResult CHttpServerEngine::OnClose(ITcpServer* pSender, CONNID dwConnID, 
 	std::cout << dwConnID << "on close" << std::endl;
 	m_bodyData.erase(dwConnID);
 	//m_bodyMEMPool.deallocate(mC_bodyData[dwConnID]);
+	//
 	return HR_OK;
 }
 
@@ -67,9 +82,7 @@ EnHandleResult CHttpServerEngine::OnShutdown(ITcpServer* pSender)
 
 EnHttpParseResult CHttpServerEngine::OnMessageBegin(IHttpServer* pSender, CONNID dwConnID)
 {
-	std::cout<< "on message begin" << std::endl;
-	//std::cout<< m_strName << std::endl;
-	//if mC_bodyData.find();
+	//std::cout<< "on message begin" << std::endl;
 	//mC_bodyData[dwConnID] = m_bodyMEMPool.allocate();
 	//
 	// set $CONNID body buffer 
@@ -80,7 +93,7 @@ EnHttpParseResult CHttpServerEngine::OnMessageBegin(IHttpServer* pSender, CONNID
 EnHttpParseResult CHttpServerEngine::OnRequestLine(IHttpServer* pSender, CONNID dwConnID, LPCSTR lpszMethod, LPCSTR lpszUrl)
 {
 	//std::cout<< "on request line " << std::endl;
-	std::cout<< lpszMethod << ":" << lpszUrl << std::endl;
+	//std::cout<< lpszMethod << ":" << lpszUrl << std::endl;
 	return HPR_OK;
 }
 
@@ -93,11 +106,7 @@ EnHttpParseResult CHttpServerEngine::OnHeader(IHttpServer* pSender, CONNID dwCon
 
 EnHttpParseResult CHttpServerEngine::OnHeadersComplete(IHttpServer* pSender, CONNID dwConnID)
 {
-	/*
-	 *CStringA strSummary = GetHeaderSummary(pSender, dwConnID, "    ", 0, TRUE);
-	 */
 	std::cout<< "on header complete" << std::endl;
-
 	return HPR_OK;
 }
 

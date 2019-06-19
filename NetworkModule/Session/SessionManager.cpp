@@ -4,16 +4,6 @@
 //#include "DBBussUser.h"
 //#include "DBBussSystemSet.h"
 
-CSessionManager::CSessionManager()
-{
-
-}
-
-CSessionManager::~CSessionManager()
-{
-
-}
-
 void CSessionManager::AddSession(SessionPtr pSession)
 {
 	writeLock lock(m_mutex);
