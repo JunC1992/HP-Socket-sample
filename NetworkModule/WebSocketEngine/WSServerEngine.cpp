@@ -58,10 +58,12 @@ EnHandleResult CWSServerEngine::OnClose(ITcpServer* pSender, CONNID dwConnID, En
 	auto sessionID = m_session[dwConnID];
 	CSessionManager::instance()->DelSession(sessionID);
 	m_session.erase(dwConnID);
-	std::cout << "websocket client " << sessionID << " on Disconnect" << std::endl;
 
 	std::stringstream s;
 	s << "websocket client " << sessionID << " on Disconnect";
+	LOG4CXX_INFO(logger, s.str());
+
+	std::cout << s.str() << std::endl;
 	return HR_OK;
 }
 
