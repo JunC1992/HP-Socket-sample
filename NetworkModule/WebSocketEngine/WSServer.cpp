@@ -1,7 +1,7 @@
 #include "WSServer.h"
 #include "../common/log4cxx/hx_log4cxx.h"
 
-NG_LOGGER(logger, "WSServer");
+NG_LOGGER(logger, "CWSServer");
 
 CWSServerDaemon::CWSServerDaemon(const char* ip, const int port):m_ip(ip), m_port(port){
 	m_engine = std::make_shared<CWSServerEngine>(HTTP_NAME);

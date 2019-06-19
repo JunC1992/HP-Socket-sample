@@ -1,7 +1,7 @@
 #include "TcpServer.h"
 #include "../common/log4cxx/hx_log4cxx.h"
 
-NG_LOGGER(logger, "TCPServer");
+NG_LOGGER(logger, "CTcpServer");
 	
 CTcpServerDaemon::CTcpServerDaemon(const char* ip, const int port): m_ip(ip), m_port(port){ m_engine = std::make_shared<CTcpServerEngine>();
 	m_server = std::make_shared<CTcpPullServerPtr>(m_engine.get());
@@ -31,6 +31,6 @@ bool CTcpServerDaemon::SetHandleFactory(){
 void CTcpServerDaemon::Stop(){
 	(*m_server)->Stop();
 	std::ostringstream s;
-	s << "websocket server " << m_ip << ":" << m_port << " stopped";
+	s << "tcp server " << m_ip << ":" << m_port << " stopped";
 	LOG4CXX_INFO(logger, s.str());
 }

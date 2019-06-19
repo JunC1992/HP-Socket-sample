@@ -3,7 +3,7 @@
 #include "../common/net/NetBaseDef.h"
 #include "../common/log4cxx/hx_log4cxx.h"
 
-NG_LOGGER(logger, "HTTPServer");
+NG_LOGGER(logger, "CHTTPServer");
 
 CHttpServerDaemon::CHttpServerDaemon(const char* ip, const int port):m_ip(ip), m_port(port){
 	m_engine = std::make_shared<CHttpServerEngine>(HTTP_NAME);
@@ -24,12 +24,12 @@ bool CHttpServerDaemon::Start(){
 	//if(g_HttpServer->Start(m_ip, m_port)) {
 	if((*m_server)->Start(m_ip, m_port)) {
 		// log launch error
-		s << "tcp server start error: " << (*m_server)->GetLastErrorDesc();
+		s << "http server start error: " << (*m_server)->GetLastErrorDesc();
 		LOG4CXX_FATAL(logger, s.str());
 		return false;
 	}
 
-	s << "websocket server start on " << m_ip << ":" << m_port;
+	s << "http server start on " << m_ip << ":" << m_port;
 	LOG4CXX_INFO(logger, s.str());
 	return true;
 }
@@ -38,7 +38,7 @@ bool CHttpServerDaemon::Stop(){
 	// stop http server daemon
 	(*m_server)->Stop();
 	std::ostringstream s;
-	s << "websocket server " << m_ip << ":" << m_port << " stopped";
+	s << "http server " << m_ip << ":" << m_port << " stopped";
 	LOG4CXX_INFO(logger, s.str());
 
 	return true;

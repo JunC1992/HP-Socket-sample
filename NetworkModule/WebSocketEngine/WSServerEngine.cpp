@@ -9,7 +9,7 @@
 const char* const G_MSGHEADER = "<HX>";
 const char* const G_MSGEND = "<END>";
 
-NG_LOGGER(logger, "WSServerEngine");
+NG_LOGGER(logger, "CWSServerEngine");
 
 EnHandleResult CWSServerEngine::OnPrepareListen(ITcpServer* pSender, SOCKET soListen)
 {
@@ -23,11 +23,11 @@ EnHandleResult CWSServerEngine::OnAccept(ITcpServer* pSender, CONNID dwConnID, U
 	USHORT usPort;
 
 	pSender->GetRemoteAddress(dwConnID, szAddress, iAddressLen, usPort);
-	std::cout<< "accept one connect: " << szAddress << ":" << usPort << std::endl;
 
 	std::ostringstream s;
 	s << "accept one connect: " << szAddress << ":" << usPort;
 	LOG4CXX_INFO(logger, s.str());
+	std::cout<< s.str() << std::endl;
 
 	return HR_OK;
 }

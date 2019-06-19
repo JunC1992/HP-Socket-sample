@@ -7,20 +7,10 @@
 #include "../common/mempool/MemoryPool.h"
 #include "../common/mutex/cmutex.h"
 
-NG_LOGGER(logger, "CWSServerEngine");
+NG_LOGGER(logger, "CHttpServerEngine");
 
 EnHandleResult CHttpServerEngine::OnPrepareListen(ITcpServer* pSender, SOCKET soListen)
 {
-	TCHAR szAddress[50];
-	int iAddressLen = sizeof(szAddress) / sizeof(TCHAR);
-	USHORT usPort;
-	
-	pSender->GetListenAddress(szAddress, iAddressLen, usPort);
-	std::cout<< "http server start on " << szAddress << ":" << usPort << std::endl;
-	std::ostringstream s;
-	s << "http server start on " << szAddress << ":" << usPort;
-	LOG4CXX_INFO(logger, s.str());
-
 	return HR_OK;
 }
 
@@ -31,11 +21,11 @@ EnHandleResult CHttpServerEngine::OnAccept(ITcpServer* pSender, CONNID dwConnID,
 	USHORT usPort;
 
 	pSender->GetRemoteAddress(dwConnID, szAddress, iAddressLen, usPort);
-	std::cout<< "accept one connect: " << szAddress << ":" << usPort << std::endl;
 	std::ostringstream s;
 	s << "accept one connect: " << szAddress << ":" << usPort;
 	LOG4CXX_INFO(logger, s.str());
 
+	std::cout<< s.str() << std::endl;
 	return HR_OK;
 }
 

@@ -10,7 +10,7 @@ const char* const G_MSGEND = "<END>";
 const char* const G_ZEORMSG = "<HX><END>";
 const int G_ZEORMSGLEN = 9;
 
-NG_LOGGER(logger, "TCPServerEngine");
+NG_LOGGER(logger, "CTcpServerEngine");
 
 EnHandleResult CTcpServerEngine::OnPrepareListen(ITcpServer* pSender, SOCKET soListen)
 {
