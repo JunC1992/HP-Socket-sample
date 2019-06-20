@@ -1,9 +1,9 @@
 CC=g++
 LIBS=-lhpsocket -lpthread -ljsoncpp
-CPPS= test.cpp \
+CPPS= test.cxx \
       ./WSClientEngine.cpp \
-      ./WSClient.cxx
-#OPTI= -O2
+      ./WSClient.cpp
+CFLAGS= -std=c++11 -O2
 
 TARGET=wsclient
 

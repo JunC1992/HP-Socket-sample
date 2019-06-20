@@ -7,7 +7,7 @@
 #define DEFAULT_HTTP_IP "127.0.0.1"
 #define DEFAULT_HTTP_PORT 8080
 
-class CWSServerDaemon{
+class CWSServerDaemon {
 
 public:
 	CWSServerDaemon():CWSServerDaemon(DEFAULT_HTTP_IP, DEFAULT_HTTP_PORT){};
@@ -32,3 +32,5 @@ private:
 	std::shared_ptr<CWSServerEngine> m_engine;
 	std::shared_ptr<CHttpServerPtr> m_server;
 };
+
+typedef std::shared_ptr<CWSServerDaemon> CWSServerDaemonPtr;

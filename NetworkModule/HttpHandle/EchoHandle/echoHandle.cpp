@@ -1,6 +1,6 @@
 #include "echoHandle.h"
 
-bool CEchoHttpHandle::Handle(const std::string& content, std::string& response){
+bool CEchoHttpHandle::Handle(const std::string& content, std::string& response) {
 	response = "ECHO_HELLO_WORLD";
 	return true;
 }

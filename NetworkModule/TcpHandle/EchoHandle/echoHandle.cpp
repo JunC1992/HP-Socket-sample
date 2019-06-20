@@ -1,7 +1,7 @@
 #include <iostream>
 #include "echoHandle.h"
 
-bool CEchoTcpHandle::Handle(const std::string& content, std::string& response){
+bool CEchoTcpHandle::Handle(const std::string& content, std::string& response) {
 	response = "ECHO_HELLO_WORLD";
 	std::cout<< "in echo handle: " << content <<std::endl;
 	return true;

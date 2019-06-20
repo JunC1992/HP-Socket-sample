@@ -23,9 +23,9 @@ EnHandleResult CHttpServerEngine::OnAccept(ITcpServer* pSender, CONNID dwConnID,
 	pSender->GetRemoteAddress(dwConnID, szAddress, iAddressLen, usPort);
 	std::ostringstream s;
 	s << "accept one connect: " << szAddress << ":" << usPort;
-	LOG4CXX_INFO(logger, s.str());
+	LOG4CXX_DEBUG(logger, s.str());
 
-	std::cout<< s.str() << std::endl;
+	//std::cout<< s.str() << std::endl;
 	return HR_OK;
 }
 
@@ -36,8 +36,6 @@ EnHandleResult CHttpServerEngine::OnHandShake(ITcpServer* pSender, CONNID dwConn
 
 EnHandleResult CHttpServerEngine::OnReceive(ITcpServer* pSender, CONNID dwConnID, const BYTE* pData, int iLength)
 {
-	std::cout<< "receive data: " << pData << std::endl;
-
 	 return HR_OK;
 }
 
@@ -64,7 +62,6 @@ EnHandleResult CHttpServerEngine::OnShutdown(ITcpServer* pSender)
 
 EnHttpParseResult CHttpServerEngine::OnMessageBegin(IHttpServer* pSender, CONNID dwConnID)
 {
-	//std::cout<< "on message begin" << std::endl;
 	//mC_bodyData[dwConnID] = m_bodyMEMPool.allocate();
 	//
 	// set $CONNID body buffer 
@@ -74,14 +71,12 @@ EnHttpParseResult CHttpServerEngine::OnMessageBegin(IHttpServer* pSender, CONNID
 
 EnHttpParseResult CHttpServerEngine::OnRequestLine(IHttpServer* pSender, CONNID dwConnID, LPCSTR lpszMethod, LPCSTR lpszUrl)
 {
-	//std::cout<< "on request line " << std::endl;
 	//std::cout<< lpszMethod << ":" << lpszUrl << std::endl;
 	return HPR_OK;
 }
 
 EnHttpParseResult CHttpServerEngine::OnHeader(IHttpServer* pSender, CONNID dwConnID, LPCSTR lpszName, LPCSTR lpszValue)
 {
-	//std::cout<< "on header" << std::endl;
 	//std::cout<< lpszName << ":" << lpszValue << std::endl;
 	return HPR_OK;
 }
@@ -138,13 +133,11 @@ EnHttpParseResult CHttpServerEngine::OnUpgrade(IHttpServer* pSender, CONNID dwCo
 
 EnHttpParseResult CHttpServerEngine::OnParseError(IHttpServer* pSender, CONNID dwConnID, int iErrorCode, LPCSTR lpszErrorDesc)
 {
-	std::cout<< "on parse error" << std::endl;
 	return HPR_OK;
 }
 
 EnHandleResult CHttpServerEngine::OnWSMessageHeader(IHttpServer* pSender, CONNID dwConnID, BOOL bFinal, BYTE iReserved, BYTE iOperationCode, const BYTE lpszMask[4], ULONGLONG ullBodyLen)
 {
-
 	return HR_OK;
 }
 
@@ -182,8 +175,8 @@ EnHttpParseResult CHttpServerEngine::HttpHandle(IHttpServer* pSender, CONNID dwC
 	int reCode = HSC_OK;
 	std::string reStatus = "OK";
 	if (!res) {
-		//reCode = HSC_INTERNAL_SERVER_ERROR;
-		//reStatus = "ERROR";
+	//	reCode = HSC_INTERNAL_SERVER_ERROR;
+	//	reStatus = "ERROR";
 	}
 
 	pSender->SendResponse(dwConnID, 

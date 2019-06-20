@@ -1,6 +1,6 @@
 #include "echoHandle.h"
 
-bool CEchoWSHandle::Handle(const std::string& content, std::string& response){
+bool CEchoWSHandle::Handle(const std::string& content, std::string& response) {
 	response = "ECHO_HELLO_WORLD";
 	return true;
 }

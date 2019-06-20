@@ -27,7 +27,7 @@ EnHandleResult CTcpServerEngine::OnAccept(ITcpServer* pSender, CONNID dwConnID, 
 	pSender->GetRemoteAddress(dwConnID, szAddress, iAddressLen, usPort);
 	s << "accept one connect: " << szAddress << ":" << usPort;
 	LOG4CXX_INFO(logger, s.str());
-	std::cout<< s.str() << std::endl;
+	//std::cout<< s.str() << std::endl;
 
 	// set $CONNID stream remain buffer 
 	m_remain.insert(std::make_pair(dwConnID, ""));
@@ -122,21 +122,19 @@ void CTcpServerEngine::Handle(ITcpServer* pSender, const CONNID dwConnID, const 
 }
 
 void CTcpServerEngine::HandleProcess(ITcpServer* pSender, const CONNID dwConnID, const std::string& content) {
-	//std::cout<< content <<std::endl;
 	std::string response;
 	// parse content json body
-	Json::Reader reader;
-	Json::Value rootValue;
-	if (!reader.parse(content, rootValue)) {
-		response = "ERROR_REQUEST_BODY";
-		// respose to client
-		std::cout << response << std::endl;
-		pSender->Send(dwConnID, (BYTE*)response.data(), response.length());
-		return ;
-	}
-	
-	int cmdCode = 0;
 	try{
+		Json::Reader reader;
+		Json::Value rootValue;
+		if (!reader.parse(content, rootValue)) {
+			response = "ERROR_REQUEST_BODY";
+			// respose to client
+			pSender->Send(dwConnID, (BYTE*)response.data(), response.length());
+			return ;
+		}
+
+		int cmdCode = 0;
 		// handle request action
 		cmdCode = rootValue["cmdcode"].asInt();
 		//TODO
@@ -154,7 +152,6 @@ void CTcpServerEngine::HandleProcess(ITcpServer* pSender, const CONNID dwConnID,
 
 	// respose to client
 	pSender->Send(dwConnID, (BYTE*)response.data(), response.length());
-	std::cout << "in handle: " << response << std::endl;
 }
 
 void CTcpServerEngine::Init() {

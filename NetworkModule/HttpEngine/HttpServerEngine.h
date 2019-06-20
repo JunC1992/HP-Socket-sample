@@ -1,8 +1,8 @@
 #pragma once
 
-#include <map>
 #include <string>
 #include <thread>
+#include <map>
 
 #include <hpsocket/HPSocket.h> 
 #include <hpsocket/common/GlobalDef.h> 
@@ -37,14 +37,14 @@ private:
 	virtual EnHandleResult OnWSMessageComplete(IHttpServer* pSender, CONNID dwConnID);
 
 private:
-	std::string GetHeaderSummary(IHttpServer* pSender, CONNID dwConnID, LPCSTR lpszSep = "  ", int iSepCount = 0, BOOL bWithContentLength = TRUE);
-
 	// http request handle
 	EnHttpParseResult HttpHandle (IHttpServer* pSender, CONNID dwConnID, std::string& content);
 	bool HttpHandleProcess (const std::string& sBody, std::string& sResponse);
 
 public:
 	CHttpServerEngine(LPCTSTR lpszName): m_strName(lpszName){}
+	~CHttpServerEngine()=default;
+
 	// http server engine init
 	void Init();
 

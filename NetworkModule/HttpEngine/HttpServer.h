@@ -31,3 +31,5 @@ private:
 	std::shared_ptr<CHttpServerEngine> m_engine;
 	std::shared_ptr<CHttpServerPtr> m_server;
 };
+
+typedef std::shared_ptr<CHttpServerDaemon> CHttpServerDaemonPtr;

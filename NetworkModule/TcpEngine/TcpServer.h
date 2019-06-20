@@ -28,10 +28,8 @@ public:
 	bool SetHandleFactory();
 
 	// stop tcp server daemon
-	 void Stop();
-	//
-	// thread pool set
-	// package parse
+	void Stop();
+
 private:
 	const char* m_ip;
 	const int m_port;
@@ -40,3 +38,5 @@ private:
 	std::shared_ptr<CTcpServerEngine> m_engine;
 	std::shared_ptr<CTcpPullServerPtr> m_server;
 };
+
+typedef std::shared_ptr<CTcpServerDaemon> CTcpServerDaemonPtr; 

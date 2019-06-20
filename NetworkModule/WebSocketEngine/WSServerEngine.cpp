@@ -27,7 +27,7 @@ EnHandleResult CWSServerEngine::OnAccept(ITcpServer* pSender, CONNID dwConnID, U
 	std::ostringstream s;
 	s << "accept one connect: " << szAddress << ":" << usPort;
 	LOG4CXX_INFO(logger, s.str());
-	std::cout<< s.str() << std::endl;
+	//std::cout<< s.str() << std::endl;
 
 	return HR_OK;
 }
@@ -39,7 +39,6 @@ EnHandleResult CWSServerEngine::OnHandShake(ITcpServer* pSender, CONNID dwConnID
 
 EnHandleResult CWSServerEngine::OnReceive(ITcpServer* pSender, CONNID dwConnID, const BYTE* pData, int iLength)
 {
-	//std::cout<< "receive data: " << pData << std::endl;
 	return HR_OK;
 }
 
@@ -63,7 +62,7 @@ EnHandleResult CWSServerEngine::OnClose(ITcpServer* pSender, CONNID dwConnID, En
 	s << "websocket client " << sessionID << " on Disconnect";
 	LOG4CXX_INFO(logger, s.str());
 
-	std::cout << s.str() << std::endl;
+	//std::cout << s.str() << std::endl;
 	return HR_OK;
 }
 
@@ -76,7 +75,6 @@ EnHandleResult CWSServerEngine::OnShutdown(ITcpServer* pSender)
 
 EnHttpParseResult CWSServerEngine::OnMessageBegin(IHttpServer* pSender, CONNID dwConnID)
 {
-	std::cout<< "on message begin" << std::endl;
 	m_bodyData.insert(std::make_pair(dwConnID, ""));
 	m_remain.insert(std::make_pair(dwConnID, ""));
 
@@ -96,15 +94,13 @@ EnHttpParseResult CWSServerEngine::OnMessageBegin(IHttpServer* pSender, CONNID d
 
 EnHttpParseResult CWSServerEngine::OnRequestLine(IHttpServer* pSender, CONNID dwConnID, LPCSTR lpszMethod, LPCSTR lpszUrl)
 {
-	//std::cout<< "on request line " << std::endl;
-	std::cout<< lpszMethod << ":" << lpszUrl << std::endl;
+	//std::cout<< lpszMethod << ":" << lpszUrl << std::endl;
 	return HPR_OK;
 }
 
 EnHttpParseResult CWSServerEngine::OnHeader(IHttpServer* pSender, CONNID dwConnID, LPCSTR lpszName, LPCSTR lpszValue)
 {
-	//std::cout<< "on header" << std::endl;
-	std::cout<< lpszName << ":" << lpszValue << std::endl;
+	//std::cout<< lpszName << ":" << lpszValue << std::endl;
 	return HPR_OK;
 }
 
@@ -117,9 +113,7 @@ EnHttpParseResult CWSServerEngine::OnHeadersComplete(IHttpServer* pSender, CONNI
 
 EnHttpParseResult CWSServerEngine::OnBody(IHttpServer* pSender, CONNID dwConnID, const BYTE* pData, int iLength)
 {
-	std::cout<< "on body" << std::endl;
 	//m_bodyData[dwConnID] += (char*) pData;
-
 	return HPR_OK;
 }
 
@@ -135,7 +129,6 @@ EnHttpParseResult CWSServerEngine::OnChunkComplete(IHttpServer* pSender, CONNID 
 
 EnHttpParseResult CWSServerEngine::OnMessageComplete(IHttpServer* pSender, CONNID dwConnID)
 {
-	std::cout<< "on message complete : " << dwConnID << std::endl;
 	return HPR_OK;
 }
 
@@ -175,7 +168,7 @@ EnHandleResult CWSServerEngine::OnWSMessageHeader(IHttpServer* pSender, CONNID d
 EnHandleResult CWSServerEngine::OnWSMessageBody(IHttpServer* pSender, CONNID dwConnID, const BYTE* pData, int iLength)
 {
 	std::string body(pData, pData + iLength);
-	std::cout << "ws message body: " << body << std::endl;
+	//std::cout << "ws message body: " << body << std::endl;
 	m_bodyData[dwConnID] += body;
 	return HR_OK;
 }
@@ -231,17 +224,17 @@ EnHandleResult CWSServerEngine::HttpHandle(IHttpServer* pSender, CONNID dwConnID
 }
 
 bool CWSServerEngine::HttpHandleProcess(const std::string& content, std::string& response) {
-	// parse content json body
-	Json::Reader reader;
-	Json::Value rootValue;
-	if (!reader.parse(content, rootValue)) {
-		response = "ERROR_HTTP_BODY";
-		return false;
-	}
-	bool res = false;
-	int cmdCode = 0;
-
 	try{
+		// parse content json body
+		Json::Reader reader;
+		Json::Value rootValue;
+		if (!reader.parse(content, rootValue)) {
+			response = "ERROR_HTTP_BODY";
+			return false;
+		}
+		bool res = false;
+		int cmdCode = 0;
+
 		// handle request action
 		cmdCode = rootValue["cmdcode"].asInt();
 		//TODO
