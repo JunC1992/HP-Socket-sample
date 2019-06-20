@@ -1,6 +1,6 @@
 CC=g++
 LIBS= -lhpsocket -lpthread -ljsoncpp -llog4cxx
-OPTI= -O2
+CFLAGS= -std=c++11 -O2
 
 ALL_CPPS= ./TcpServer.cpp \
 	  ./TcpServerEngine.cpp \
@@ -11,7 +11,7 @@ ALL_CPPS= ./TcpServer.cpp \
 TARGET=serv
 
 $(TARGET):$(ALL_CPPS)
-	$(CC) $(ALL_CPPS) $(LIBS) $(OPTI) -o $(TARGET)
+	$(CC) $(ALL_CPPS) $(LIBS) $(CFLAGS) -o $(TARGET)
 
 clean:
 	rm $(TARGET) -f

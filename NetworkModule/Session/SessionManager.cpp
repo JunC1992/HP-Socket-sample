@@ -464,16 +464,18 @@ int CSessionManager::SendToAllManagerAndIns(const std::string& content)
  *        return 0;
  *}
  */
-
-int CSessionManager::SendToAllRelatedManagerAndInsBySession(const std::string& sessionID, const std::string& content)
-{
-	SessionPtr sessionPtr = GetLoginSession(sessionID);
-	if (nullptr == sessionPtr.get())
-		return -1;
-
-	SendToAllRelatedManagerAndIns(sessionPtr->GetUserID(), content);
-	return 0;
-}
+/*
+ *
+ *int CSessionManager::SendToAllRelatedManagerAndInsBySession(const std::string& sessionID, const std::string& content)
+ *{
+ *        SessionPtr sessionPtr = GetLoginSession(sessionID);
+ *        if (nullptr == sessionPtr.get())
+ *                return -1;
+ *
+ *        SendToAllRelatedManagerAndIns(sessionPtr->GetUserID(), content);
+ *        return 0;
+ *}
+ */
 
 /*
  *int CSessionManager::SendToAllRelatedManagerAndIns(const std::string& userID, const std::string& content)
@@ -672,16 +674,18 @@ bool CSessionManager::IsUserOnline(const std::string& userID, int userType)
  *        return 0;
  *}
  */
-
-int CSessionManager::SendToSameLevelManagerAndInsBySession(const std::string& sessionID, const std::string& content)
-{
-	SessionPtr sessionPtr = GetLoginSession(sessionID);
-	if (nullptr == sessionPtr.get())
-		return -1;
-
-	return SendToSameLevelManagerAndIns(sessionPtr->GetUserID(), content);
-}
-
+/*
+ *
+ *int CSessionManager::SendToSameLevelManagerAndInsBySession(const std::string& sessionID, const std::string& content)
+ *{
+ *        SessionPtr sessionPtr = GetLoginSession(sessionID);
+ *        if (nullptr == sessionPtr.get())
+ *                return -1;
+ *
+ *        return SendToSameLevelManagerAndIns(sessionPtr->GetUserID(), content);
+ *}
+ *
+ */
 int CSessionManager::SendToSuperManagerAndIns(const std::string& content)
 {
 	for (auto iter : m_insSessions)

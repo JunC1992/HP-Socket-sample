@@ -27,7 +27,6 @@ public:
 	// register handler
 	bool SetHandleFactory();
 
-	//TODO
 	// stop tcp server daemon
 	 void Stop();
 	//

@@ -48,14 +48,6 @@ EnHandleResult CHttpServerEngine::OnSend(ITcpServer* pSender, CONNID dwConnID, c
 
 EnHandleResult CHttpServerEngine::OnClose(ITcpServer* pSender, CONNID dwConnID, EnSocketOperation enOperation, int iErrorCode)
 {
-/*
- *
- *        CBufferPtr* pBuffer = nullptr;
- *        pSender->GetConnectionExtra(dwConnID, (PVOID*)&pBuffer);
- *
- *        if(pBuffer) delete pBuffer;
- *
- */
 	std::cout << dwConnID << "on close" << std::endl;
 	m_bodyData.erase(dwConnID);
 	//m_bodyMEMPool.deallocate(mC_bodyData[dwConnID]);
@@ -90,7 +82,7 @@ EnHttpParseResult CHttpServerEngine::OnRequestLine(IHttpServer* pSender, CONNID 
 EnHttpParseResult CHttpServerEngine::OnHeader(IHttpServer* pSender, CONNID dwConnID, LPCSTR lpszName, LPCSTR lpszValue)
 {
 	//std::cout<< "on header" << std::endl;
-	std::cout<< lpszName << ":" << lpszValue << std::endl;
+	//std::cout<< lpszName << ":" << lpszValue << std::endl;
 	return HPR_OK;
 }
 
@@ -172,7 +164,7 @@ EnHttpParseResult CHttpServerEngine::HttpHandle(IHttpServer* pSender, CONNID dwC
 	 *LPVOID pExBody = nullptr;
 	 *if(!pSender->GetConnectionExtra(dwConnID, (PVOID*)&pExBody)) {
 	 *        std::cout << "get connection extra error" << std::endl;
-         *n HPR_ERROR;
+         *	  return HPR_ERROR;
 	 *}
 	 *if (pExBody == nullptr) {
 	 *        // default extra body init
@@ -180,6 +172,7 @@ EnHttpParseResult CHttpServerEngine::HttpHandle(IHttpServer* pSender, CONNID dwC
 	 *}
 	 */
 
+	try {
 	std::string resp;
 	auto res = HttpHandleProcess(content, resp);
 
@@ -189,17 +182,13 @@ EnHttpParseResult CHttpServerEngine::HttpHandle(IHttpServer* pSender, CONNID dwC
 	int reCode = HSC_OK;
 	std::string reStatus = "OK";
 	if (!res) {
-		/*
-		 *reCode = HSC_INTERNAL_SERVER_ERROR;
-		 *reStatus = "ERROR";
-		 */
+		//reCode = HSC_INTERNAL_SERVER_ERROR;
+		//reStatus = "ERROR";
 	}
 
-	try {
 	pSender->SendResponse(dwConnID, 
 			reCode, reStatus.data(),
 			header, iHeaderCount,
-			//(const BYTE*)(LPCSTR)"",
 			(const BYTE*)resp.data(),
 			resp.length()
 			);
