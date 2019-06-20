@@ -19,7 +19,7 @@ bool CWSServerDaemon::Start(){
 	std::ostringstream s;
 	Init();
 	SetHandleFactory();
-	if((*m_server)->Start(m_ip, m_port)) {
+	if(!(*m_server)->Start(m_ip, m_port)) {
 		// log launch error
 		s << "websocket server start error: " << (*m_server)->GetLastErrorDesc();
 		LOG4CXX_FATAL(logger, s.str());

@@ -1,5 +1,5 @@
 CC=g++
-LIBS=-lhpsocket -ljsoncpp -lpthread
+LIBS=-lhpsocket -ljsoncpp -lpthread -llog4cxx
 CPPS=./WSServerEngine.cpp \
      ./WSServer.cpp \
      ../WebSocketHandle/WSHandle.cpp \

@@ -1,5 +1,5 @@
 CC=g++
-LIBS= -lhpsocket -lpthread -ljsoncpp
+LIBS= -lhpsocket -lpthread -ljsoncpp -llog4cxx
 OPTI= -O2
 
 ALL_CPPS= ./TcpServer.cpp \

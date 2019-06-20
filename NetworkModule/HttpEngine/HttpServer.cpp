@@ -3,7 +3,7 @@
 #include "../common/net/NetBaseDef.h"
 #include "../common/log4cxx/hx_log4cxx.h"
 
-NG_LOGGER(logger, "CHTTPServer");
+NG_LOGGER(logger, "CHttpServer");
 
 CHttpServerDaemon::CHttpServerDaemon(const char* ip, const int port):m_ip(ip), m_port(port){
 	m_engine = std::make_shared<CHttpServerEngine>(HTTP_NAME);
@@ -22,7 +22,7 @@ bool CHttpServerDaemon::Start(){
 	Init();
 	SetHandleFactory();
 	//if(g_HttpServer->Start(m_ip, m_port)) {
-	if((*m_server)->Start(m_ip, m_port)) {
+	if(!(*m_server)->Start(m_ip, m_port)) {
 		// log launch error
 		s << "http server start error: " << (*m_server)->GetLastErrorDesc();
 		LOG4CXX_FATAL(logger, s.str());

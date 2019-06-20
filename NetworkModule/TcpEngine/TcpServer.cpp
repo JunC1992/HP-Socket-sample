@@ -17,7 +17,7 @@ bool CTcpServerDaemon::Start(){
 		return false;
 	}
 
-	s << "websocket server start on " << m_ip << ":" << m_port;
+	s << "tcp server start on " << m_ip << ":" << m_port;
 	LOG4CXX_INFO(logger, s.str());
 	return true;
 }
