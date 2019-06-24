@@ -83,13 +83,13 @@ EnHttpParseResult CHttpServerEngine::OnHeader(IHttpServer* pSender, CONNID dwCon
 
 EnHttpParseResult CHttpServerEngine::OnHeadersComplete(IHttpServer* pSender, CONNID dwConnID)
 {
-	std::cout<< "on header complete" << std::endl;
+	//std::cout<< "on header complete" << std::endl;
 	return HPR_OK;
 }
 
 EnHttpParseResult CHttpServerEngine::OnBody(IHttpServer* pSender, CONNID dwConnID, const BYTE* pData, int iLength)
 {
-	std::cout<< "on body" << std::endl;
+	//std::cout<< "on body" << std::endl;
 	//pSender->SetConnectionExtra(dwConnID, PVOID(pData));
 	//std::string tmp += (char*) pData;
 	//memncpy(mC_bodyData[dwConnID], tmp.data(), tmp.length);
@@ -112,7 +112,7 @@ EnHttpParseResult CHttpServerEngine::OnChunkComplete(IHttpServer* pSender, CONNI
 
 EnHttpParseResult CHttpServerEngine::OnMessageComplete(IHttpServer* pSender, CONNID dwConnID)
 {
-	std::cout<< "on message complete : " << dwConnID << std::endl;
+	//std::cout<< "on message complete : " << dwConnID << std::endl;
 
 	// get body content
 	std::string content = std::move(m_bodyData[dwConnID]);
@@ -166,25 +166,25 @@ EnHttpParseResult CHttpServerEngine::HttpHandle(IHttpServer* pSender, CONNID dwC
 	 */
 
 	try {
-	std::string resp;
-	auto res = HttpHandleProcess(content, resp);
+		std::string resp;
+		auto res = HttpHandleProcess(content, resp);
 
-	// set http response header 
-	THeader header[] = {{"Content-type", "text/plain"}};
-        int iHeaderCount = sizeof(header) / sizeof(THeader);
-	int reCode = HSC_OK;
-	std::string reStatus = "OK";
-	if (!res) {
-	//	reCode = HSC_INTERNAL_SERVER_ERROR;
-	//	reStatus = "ERROR";
-	}
+		// set http response header 
+		THeader header[] = {{"Content-type", "text/plain"}};
+		int iHeaderCount = sizeof(header) / sizeof(THeader);
+		int reCode = HSC_OK;
+		std::string reStatus = "OK";
+		if (!res) {
+			// reCode = HSC_INTERNAL_SERVER_ERROR;
+			// reStatus = "ERROR";
+		}
 
-	pSender->SendResponse(dwConnID, 
-			reCode, reStatus.data(),
-			header, iHeaderCount,
-			(const BYTE*)resp.data(),
-			resp.length()
-			);
+		pSender->SendResponse(dwConnID, 
+				reCode, reStatus.data(),
+				header, iHeaderCount,
+				(const BYTE*)resp.data(),
+				resp.length()
+				);
 	} catch (std::exception&){}
 
         if(!pSender->IsKeepAlive(dwConnID))

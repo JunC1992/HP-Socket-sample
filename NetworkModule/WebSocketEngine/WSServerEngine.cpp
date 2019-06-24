@@ -224,6 +224,9 @@ EnHandleResult CWSServerEngine::HttpHandle(IHttpServer* pSender, CONNID dwConnID
 }
 
 bool CWSServerEngine::HttpHandleProcess(const std::string& content, std::string& response) {
+	bool res = false;
+	int cmdCode = 0;
+
 	try{
 		// parse content json body
 		Json::Reader reader;
@@ -232,8 +235,6 @@ bool CWSServerEngine::HttpHandleProcess(const std::string& content, std::string&
 			response = "ERROR_HTTP_BODY";
 			return false;
 		}
-		bool res = false;
-		int cmdCode = 0;
 
 		// handle request action
 		cmdCode = rootValue["cmdcode"].asInt();

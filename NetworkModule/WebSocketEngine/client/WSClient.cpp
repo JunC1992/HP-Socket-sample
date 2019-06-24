@@ -66,7 +66,7 @@ bool CWSClient::Start(){
 	if (!(*m_pClient)->Start(m_serverIp, m_serverPort, false, cliIP)) {
 		// TODO
 		// log error msg
-		std::cout<< "ws start error: " << (*m_pClient)->GetLastError() << std::endl;
+		std::cout<< "ws start error: " << (*m_pClient)->GetLastErrorDesc() << std::endl;
 		return false;
 	}
 
